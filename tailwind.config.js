@@ -6,13 +6,6 @@ const config = {
   content: ["./src/**/*.{html,js,svelte,ts}"],
   safelist: ["dark"],
   theme: {
-    container: {
-      center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
-    },
     extend: {
       colors: {
         border: "hsl(var(--border) / <alpha-value>)",
@@ -59,6 +52,9 @@ const config = {
       },
     },
   },
+  plugins: [
+    require('@tailwindcss/forms'),
+  ],
 };
 
 export default config;
