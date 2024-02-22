@@ -1,1 +1,1 @@
-<p class="text-white">Welcome to the quiz game !</p>
+<p>Welcome to the quiz game !</p>

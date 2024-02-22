@@ -9,3 +9,4 @@ vite.config.ts.timestamp-*
 /data
 .vscode
 /test-results
+.history

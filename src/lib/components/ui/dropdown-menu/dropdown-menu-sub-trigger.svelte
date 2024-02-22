@@ -1,8 +1,8 @@
 <script lang="ts">
   import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
-  import { ChevronRight } from 'radix-icons-svelte';
+  import { ChevronRight } from 'lucide-svelte';
 
-  import { cn } from '$lib/utils/shadcn';
+  import { cn } from '$lib/utils';
 
   type $$Props = DropdownMenuPrimitive.SubTriggerProps & {
     inset?: boolean;

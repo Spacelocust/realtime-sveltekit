@@ -1,6 +1,4 @@
 <script lang="ts">
-  import Button from '$components/ui/button/button.svelte';
-
   import { page } from '$app/stores';
 </script>
 
@@ -11,12 +9,17 @@
   <meta name="googlebot" content="noindex" />
 </svelte:head>
 
-<div class="space-y-3 text-center">
-  <h1 class="mb-4 text-7xl tracking-tight font-extrabold lg:text-9xl text-primary-600">
-    {$page.status}
-  </h1>
-  <p class="mb-4 text-lg font-light text-gray-500">
+<div class="text-center">
+  <p class="text-base font-semibold text-indigo-600">{$page.status}</p>
+  <h1 class="mt-4 text-3xl font-bold tracking-tight sm:text-5xl">Page not found</h1>
+  <p class="mt-6 text-base leading-7 text-gray-600">
     {$page.error?.message ?? 'Something went wrong.'}
   </p>
-  <Button href="/">Go home</Button>
+  <div class="mt-10 flex items-center justify-center gap-x-6">
+    <a
+      href="/"
+      class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      >Go back home</a
+    >
+  </div>
 </div>
