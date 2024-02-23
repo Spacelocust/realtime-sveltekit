@@ -3,8 +3,8 @@ import type { Config } from 'drizzle-kit';
 const { MARIADB_DATABASE, MARIADB_HOST, MARIADB_ROOT_PASSWORD, MARIADB_ROOT_USER } = process.env;
 
 export default {
-  schema: './src/lib/server/drizzle/table/*.ts',
-  out: './src/lib/server/drizzle/migrations',
+  schema: './drizzle/table/*.ts',
+  out: './drizzle/migrations',
   driver: 'mysql2',
   dbCredentials: {
     host: MARIADB_HOST ?? '',

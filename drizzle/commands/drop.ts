@@ -1,5 +1,5 @@
-import { connection } from './db';
-import drizzleConfig from './drizzle.config';
+import { connection } from '../db';
+import drizzleConfig from '../drizzle.config';
 
 await connection.query(`DROP DATABASE IF EXISTS ${drizzleConfig.dbCredentials.database};`);
 

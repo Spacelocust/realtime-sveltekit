@@ -1,5 +1,5 @@
 import type { Auth as AuthType } from '$lib/server/auth';
-import type { db } from '$server/drizzle/db';
+import type { db } from '$server/drizzle';
 import type { Session, User } from 'lucia';
 import type { SchemaIssues } from 'valibot';
 

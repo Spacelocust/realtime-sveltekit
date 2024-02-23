@@ -72,7 +72,7 @@ test-install: ## Install the test dependencies
 
 ##@ DB
 db-push: ## Push the current schema to the database
-	$(EXECSVELTEKIT) bunx drizzle-kit push:mysql --config=src/lib/server/drizzle/drizzle.config.ts
+	$(EXECSVELTEKIT) bunx drizzle-kit push:mysql --config=drizzle/drizzle.config.ts
 
 db-clear: ## Pull the current schema from the database
 	make db-drop
@@ -84,14 +84,17 @@ db-drop: ## Drop the database
 db-create: ## Create the database
 	$(EXECSVELTEKIT) bun run db:create
 
-db-drop-migration: ## Drop the latest migration from the database
-	$(EXECSVELTEKIT) bunx drizzle-kit drop --config=src/lib/server/drizzle/drizzle.config.ts
-
 db-migrate: ## Run latest migration
 	$(EXECSVELTEKIT) bun run db:migrate
 
+db-fixtures: ## Load fixtures
+	$(EXECSVELTEKIT) bun run db:fixtures
+
+db-drop-migration: ## Drop the latest migration from the database
+	$(EXECSVELTEKIT) bunx drizzle-kit drop --config=drizzle/drizzle.config.ts
+
 db-create-migration: ## Create a new migration
-	$(EXECSVELTEKIT) bunx drizzle-kit generate:mysql --config=src/lib/server/drizzle/drizzle.config.ts
+	$(EXECSVELTEKIT) bunx drizzle-kit generate:mysql --config=drizzle/drizzle.config.ts
 
 db-studio: ## Launch the drizzle studio
-	$(EXECSVELTEKIT) bunx drizzle-kit studio --host 0.0.0.0 --port 3001 --config=./src/lib/server/drizzle/drizzle.config.ts
+	$(EXECSVELTEKIT) bunx drizzle-kit studio --host 0.0.0.0 --port 3001 --config=./drizzle/drizzle.config.ts
