@@ -75,10 +75,6 @@
   </div>
   <div class="mt-6 flex items-center justify-end gap-x-6">
     <a href="login" class="text-sm font-semibold leading-6">Login</a>
-    <Form.Button
-      type="submit"
-      class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
-      disabled={$delayed}>Register</Form.Button
-    >
+    <Form.Button type="submit" disabled={$delayed}>Register</Form.Button>
   </div>
 </form>
