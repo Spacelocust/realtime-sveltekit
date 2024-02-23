@@ -16,6 +16,7 @@ Real-time project for ESGI with SvelteKit.
 ## Launch the project
 
 Launch the project using the `make start` and then `make db-migrate` commands.
+Additionally, you can use the `make db-fixtures` command to add some fixtures to the database.
 You can then stop and relaunch the project using the `make stop` and `make up` commands.
 
 You can view the project on [http://localhost:5173](http://localhost:5173).
@@ -23,13 +24,15 @@ The database UI is available on [http://localhost:8080](http://localhost:8080).
 
 ## Accounts
 
-The project uses static accounts to log in. It is not currently possible to create an account.
+Users available after running the `make db-fixtures` command.
 
-| Username  | Password |
-| --------- | -------- |
-| `dallas`  | `xxx`    |
-| `butcher` | `xxx`    |
-| `bob`     | `xxx`    |
+| Username   | Password | Role    |
+| ---------- | -------- | ------- |
+| `dallas`   | `xxx`    | `admin` |
+| `bob`      | `xxx`    | `admin` |
+| `shade`    | `xxx`    | `admin` |
+| `karl`     | `xxx`    | `user`  |
+| `caddyman` | `xxx`    | `user`  |
 
 ## Libraries
 
