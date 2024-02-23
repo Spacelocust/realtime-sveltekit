@@ -1,6 +1,8 @@
+import { loadFlash } from 'sveltekit-flash-message/server';
+
 import type { LayoutServerLoad } from './$types';
 
-export const load = (({ locals }) => {
+export const load = loadFlash(({ locals }) => {
   return {
     title: 'The Quiz Game',
     seo: {

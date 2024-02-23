@@ -17,7 +17,8 @@ declare global {
       db: typeof db;
     }
     interface PageData {
-      title: string;
+      title?: string;
+      flash?: { type: 'success' | 'error' | 'info' | 'warning'; message: string };
       seo?: {
         title?: string;
         meta?: {

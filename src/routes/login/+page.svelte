@@ -1,8 +1,27 @@
 <script lang="ts">
-  import FormRow from '$components/form/FormRow.svelte';
+  import { toast } from 'svelte-sonner';
+  import { superForm } from 'sveltekit-superforms';
+  import { valibotClient } from 'sveltekit-superforms/adapters';
+
   import Logo from '$components/icons/Logo.svelte';
-  import Button from '$components/ui/button/button.svelte';
+  import * as Form from '$lib/components/ui/form';
   import { Input } from '$lib/components/ui/input';
+  import { LoginSchema, type LoginInput } from '$lib/schemas/login';
+  import { defaultFormOptions } from '$lib/utils/form';
+
+  import type { PageData } from './$types';
+
+  export let data: PageData;
+
+  const form = superForm<LoginInput>(data.form, {
+    ...defaultFormOptions,
+    validators: valibotClient(LoginSchema),
+  });
+  const { form: formData, enhance, delayed, timeout } = form;
+
+  $: if ($timeout) {
+    toast.error('Sorry, this is taking longer than expected...');
+  }
 </script>
 
 <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
@@ -14,23 +33,44 @@
   </div>
 
   <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-    <form class="space-y-6" action="#" method="POST">
-      <FormRow id="email" label="Email address">
-        <Input id="email" type="email" placeholder="email" slot="input" />
-      </FormRow>
+    <form class="space-y-6" action="?/login" method="post" use:enhance>
+      <Form.Field {form} name="username">
+        <Form.Control let:attrs>
+          <Form.Label>Username</Form.Label>
+          <Input {...attrs} autocomplete="username" bind:value={$formData.username} />
+        </Form.Control>
+        <Form.Description />
+        <Form.FieldErrors />
+      </Form.Field>
 
-      <FormRow id="password" label="Password">
-        <div class="text-sm" slot="rightLabel">
-          <a
-            href="/"
-            class="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-            >Forgot password?</a
-          >
-        </div>
-        <Input id="password" placeholder="password" slot="input" type="password" />
-      </FormRow>
+      <Form.Field {form} name="password">
+        <Form.Control let:attrs>
+          <div class="flex items-center justify-between">
+            <Form.Label>Password</Form.Label>
 
-      <Button type="submit" class="w-full">Sign in</Button>
+            <button
+              type="button"
+              on:click={() => {
+                toast.info(
+                  "That's a bummer, but we don't have a password recovery feature yet... Sorry!",
+                );
+              }}
+              class="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm"
+              >Forgot password?</button
+            >
+          </div>
+          <Input
+            {...attrs}
+            type="password"
+            autocomplete="current-password"
+            bind:value={$formData.password}
+          />
+        </Form.Control>
+        <Form.Description />
+        <Form.FieldErrors />
+      </Form.Field>
+
+      <Form.Button type="submit" class="w-full" disabled={$delayed}>Sign in</Form.Button>
     </form>
 
     <p class="mt-10 text-center text-sm text-gray-500 dark:text-gray-400">
