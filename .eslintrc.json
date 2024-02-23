@@ -16,14 +16,14 @@
   ],
   "overrides": [
     {
-      "files": ["*.svelte"],
+      "files": ["src/**/*.svelte"],
       "parser": "svelte-eslint-parser",
       "parserOptions": {
         "parser": "@typescript-eslint/parser"
       }
     },
     {
-      "files": ["*.ts", "*.svelte"],
+      "files": ["src/**/*.ts", "src/**/*.svelte"],
       "rules": {
         "@typescript-eslint/consistent-type-imports": ["error"],
         "@typescript-eslint/no-unnecessary-condition": ["error"]
@@ -36,6 +36,19 @@
         "node": true
       },
       "files": ["src/routes/**/*.server.ts", "src/lib/server/**/*.ts"]
+    },
+    {
+      "env": {
+        "browser": false,
+        "es2017": true,
+        "node": true
+      },
+      "parserOptions": {
+        "ecmaVersion": 2020,
+        "project": ["./tsconfig.eslint.json"],
+        "sourceType": "module"
+      },
+      "files": ["drizzle/**/*.ts"]
     }
   ],
   "parser": "@typescript-eslint/parser",
@@ -110,7 +123,7 @@
         "pathGroups": [
           {
             "group": "internal",
-            "pattern": "$(lib|components|utils|server|app)/*"
+            "pattern": "$(lib|components|utils|server|app|drizzle)/*"
           },
           {
             "group": "type",

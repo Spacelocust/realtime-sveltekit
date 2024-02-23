@@ -1,5 +1,5 @@
 import { auth } from '$server/auth';
-import { db } from '$server/drizzle/db';
+import { db } from '$server/drizzle';
 
 import type { Handle } from '@sveltejs/kit';
 

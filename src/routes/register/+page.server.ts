@@ -9,7 +9,7 @@ import { randomUUID } from 'node:crypto';
 
 import { RegisterSchema } from '$lib/schemas/register';
 import { auth } from '$server/auth';
-import { users } from '$server/drizzle/table/users';
+import { Role, users } from '$server/drizzle';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -63,6 +63,7 @@ export const actions: Actions = {
       id,
       username: form.data.username.trim(),
       password: hashedPassword,
+      role: Role.User,
     });
 
     const userSession = await auth.createSession(id, {});

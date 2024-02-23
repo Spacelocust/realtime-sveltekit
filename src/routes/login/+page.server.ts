@@ -6,7 +6,7 @@ import { valibot } from 'sveltekit-superforms/adapters';
 
 import { LoginSchema } from '$lib/schemas/login';
 import { auth } from '$server/auth';
-import { users } from '$server/drizzle/table/users';
+import { users } from '$server/drizzle';
 
 import type { Actions, PageServerLoad } from './$types';
 

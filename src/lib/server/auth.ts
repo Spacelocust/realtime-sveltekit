@@ -1,6 +1,6 @@
 import { Lucia } from 'lucia';
 
-import { adapter } from '$server/drizzle/db';
+import { adapter } from '$server/drizzle';
 
 import { dev } from '$app/environment';
 
