@@ -1,12 +1,10 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
 import { Argon2id } from 'oslo/password';
 import { message, superValidate } from 'sveltekit-superforms';
 import { valibot } from 'sveltekit-superforms/adapters';
 
 import { LoginSchema } from '$lib/schemas/login';
 import { auth } from '$server/auth';
-import { users } from '$server/drizzle';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -38,27 +36,32 @@ export const actions: Actions = {
     }
 
     const form = await superValidate(request, valibot(LoginSchema));
-    const invalidCredentialsFailure = message(form, 'Invalid credentials.', {
-      status: 400,
-    });
 
     if (!form.valid) {
       return fail(400, { form });
     }
 
     const { username, password } = form.data;
-    const existingUser = await db.query.users.findFirst({
-      where: eq(users.username, username),
-    });
+
+    const existingUser = await db.query.users
+      .findFirst({
+        where: (users, { eq, sql }) => eq(users.username, sql.placeholder('username')),
+      })
+      .prepare()
+      .execute({ username });
 
     if (!existingUser) {
-      return invalidCredentialsFailure;
+      return message(form, 'Invalid credentials.', {
+        status: 400,
+      });
     }
 
     const validPassword = await new Argon2id().verify(existingUser.password, password);
 
     if (!validPassword) {
-      return invalidCredentialsFailure;
+      return message(form, 'Invalid credentials.', {
+        status: 400,
+      });
     }
 
     const userSession = await auth.createSession(existingUser.id, {});
