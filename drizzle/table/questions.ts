@@ -4,6 +4,7 @@ import { json, mysqlTable, text, varchar } from 'drizzle-orm/mysql-core';
 import { quizzes } from './quizzes';
 
 export type Choice = {
+  id: string;
   label: string;
   isCorrect: boolean;
 };
