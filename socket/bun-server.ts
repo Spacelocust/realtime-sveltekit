@@ -6,6 +6,7 @@ import { isAuth } from './middleware';
 
 import type {
   ClientToServerEvents,
+  Games,
   InterServerEvents,
   ServerToClientEvents,
   SocketData,
@@ -15,50 +16,27 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEve
 
 io.use(isAuth);
 
-type Answer = {
-  id: string;
-  text: string;
-  countSelected: number;
-};
-
-type Question = {
-  id: string;
-  text: string;
-  isMulti: boolean;
-  answers: Record<string, Answer>;
-};
-
-type Scoreboard = {
-  [key: string]: {
-    id: string;
-    name: string;
-    score: number;
-  };
-};
-
-type Quiz = {
-  timeLeft: number;
-  scoreboard: Scoreboard;
-  question: Question;
-};
-
-type QuizStates = Record<string, Quiz>;
-
-const quizStates: QuizStates = {};
+const games: Games = {};
 
 io.on('connection', (socket) => {
-  socket.on('', (arg) => {
-    console.log(arg); // world
+  socket.on('join', (quizId) => {
+    socket.join(quizId);
+    socket.data.currentGame.id = quizId;
+
+    if
+
+    io.to(quizId).emit('message', `${socket.data.user?.username} joined the game!`);
   });
-  socket.emit('message', '[init]: Hello from server!');
 
-  socket.join('quizz');
+  socket.on('answer', (answer) => {});
 
-  io.to('quizz').emit('message', 'Hello from quizz room!');
+  socket.on('disconnect', () => {
+    const { gameId } = socket.data;
 
-  console.log('rooms:', io.of('/'));
-
-  console.log('client connected : ', socket.data);
+    if (gameId) {
+      io.to(gameId).emit('message', `${socket.data.user?.username} left the game!`);
+    }
+  });
 });
 
 io.listen(9998);
