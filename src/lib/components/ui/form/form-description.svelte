@@ -1,17 +1,19 @@
 <script lang="ts">
-	import * as FormPrimitive from "formsnap";
-	import { cn } from "$lib/utils";
-	import type { HTMLAttributes } from "svelte/elements";
+  import * as FormPrimitive from 'formsnap';
 
-	type $$Props = HTMLAttributes<HTMLSpanElement>;
-	let className: string | undefined | null = undefined;
-	export { className as class };
+  import { cn } from '$lib/utils';
+
+  import type { HTMLAttributes } from 'svelte/elements';
+
+  type $$Props = HTMLAttributes<HTMLSpanElement>;
+  let className: string | undefined | null = undefined;
+  export { className as class };
 </script>
 
 <FormPrimitive.Description
-	class={cn("text-sm text-muted-foreground", className)}
-	{...$$restProps}
-	let:descriptionAttrs
+  class={cn('text-sm text-muted-foreground', className)}
+  {...$$restProps}
+  let:descriptionAttrs
 >
-	<slot {descriptionAttrs} />
+  <slot {descriptionAttrs} />
 </FormPrimitive.Description>

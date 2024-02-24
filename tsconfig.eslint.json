@@ -1,5 +1,8 @@
 {
-  "include": ["drizzle/**/*.ts"],
+  "include": [
+    "drizzle/**/*.ts",
+    "socket/**/*.ts"
+  ],
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,

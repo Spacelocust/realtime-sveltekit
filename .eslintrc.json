@@ -48,7 +48,7 @@
         "project": ["./tsconfig.eslint.json"],
         "sourceType": "module"
       },
-      "files": ["drizzle/**/*.ts"]
+      "files": ["drizzle/**/*.ts", "socket/**/*.ts"]
     }
   ],
   "parser": "@typescript-eslint/parser",

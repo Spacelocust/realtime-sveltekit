@@ -10,4 +10,4 @@ bun install
 
 echo "Starting dev server"
 
-bun run dev --host
+supervisord -c /etc/supervisor/conf.d/supervisord.conf
