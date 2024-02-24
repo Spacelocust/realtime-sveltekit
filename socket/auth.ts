@@ -2,12 +2,12 @@ import { Lucia } from 'lucia';
 
 import { adapter } from '../drizzle/db';
 
-const { ENV } = process.env;
+const { NODE_ENV } = process.env;
 
 export const auth = new Lucia(adapter, {
   sessionCookie: {
     attributes: {
-      secure: ENV === 'production',
+      secure: NODE_ENV === 'production',
     },
   },
   getUserAttributes: (data) => {

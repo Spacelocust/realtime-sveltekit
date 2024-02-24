@@ -4,12 +4,8 @@ import { auth } from '$server/auth';
 
 import type { Actions, PageServerLoad } from './$types';
 
-export const load = (async ({ locals }) => {
-  const { session } = locals;
-
-  return {
-    sessionId: session?.id,
-  };
+export const load = (async () => {
+  return {};
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {

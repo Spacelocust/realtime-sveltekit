@@ -123,11 +123,15 @@
         "pathGroups": [
           {
             "group": "internal",
-            "pattern": "$(lib|components|utils|server|app|drizzle)/*"
+            "pattern": "$(lib|components|utils|server|app|drizzle|types|socket)/*"
           },
           {
             "group": "type",
             "pattern": "./$types"
+          },
+          {
+            "group": "type",
+            "pattern": "$types/*"
           }
         ]
       }
