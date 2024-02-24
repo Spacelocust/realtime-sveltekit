@@ -1,28 +1,36 @@
 /* eslint-disable no-console */
-import { Socket } from 'socket.io';
+import { parse } from 'cookie';
 
 import { auth } from './auth';
 
-export type Middleware = (socket: Socket, next: (err?: Error) => void) => void;
+import type { Middleware } from './types';
 
 export const isAuth: Middleware = async (socket, next) => {
+  socket.data.user = null;
+  socket.data.session = null;
+
+  const cookies = parse(socket.handshake.headers.cookie ?? '');
+  const sessionId = cookies[auth.sessionCookieName] ?? null;
   const error = new Error('Unauthorized: You are not logged in.');
 
-  const { authorization } = socket.handshake.headers;
-  if (!authorization) {
-    next(error);
-  }
-
-  const sessionId = auth.readBearerToken(authorization ?? '');
   if (!sessionId) {
     next(error);
-  } else {
-    const { session, user } = await auth.validateSession(sessionId);
-    if (!session) {
-      next(error);
-    }
 
-    console.log('Logged in as:', user?.username);
-    next();
+    return;
   }
+
+  const { session, user } = await auth.validateSession(sessionId);
+
+  if (!session || !user) {
+    next(error);
+
+    return;
+  }
+
+  console.log('Logged in as:', user.username);
+
+  socket.data.user = user;
+  socket.data.session = session;
+
+  next();
 };

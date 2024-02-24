@@ -12,7 +12,9 @@ const config = {
       $components: "./src/lib/components",
       $utils: "./src/lib/utils",
       $server: "./src/lib/server",
+      $types: "./src/lib/types",
       $drizzle: "./drizzle",
+      $socket: "./socket",
     },
   },
 };

@@ -1,26 +1,17 @@
 <script lang="ts">
   import { io } from 'socket.io-client';
+  import { onMount } from 'svelte';
 
-  import type { PageData } from './$types';
+  import type { Socket } from '$types/socket';
 
-  import { browser } from '$app/environment';
   import { PUBLIC_HOST } from '$env/static/public';
 
   let connecting = true;
   let connected = false;
-
   let messages: string[] = [];
 
-  export let data: PageData;
-
-  if (browser) {
-    console.log('in browser');
-
-    const socket = io(PUBLIC_HOST, {
-      extraHeaders: {
-        Authorization: `Bearer ${data.sessionId}`,
-      },
-    });
+  onMount(() => {
+    const socket: Socket = io(PUBLIC_HOST);
 
     socket.on('connect', () => {
       connected = true;
@@ -41,9 +32,7 @@
     socket.on('message', (arg) => {
       messages = [...messages, arg];
     });
-  } else {
-    console.log('not browser');
-  }
+  });
 </script>
 
 <p>Welcome to the quiz game !</p>
