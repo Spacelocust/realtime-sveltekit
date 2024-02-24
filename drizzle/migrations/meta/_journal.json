@@ -15,6 +15,13 @@
       "when": 1708723341070,
       "tag": "0001_bumpy_nekra",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1708793274433,
+      "tag": "0002_condemned_zeigeist",
+      "breakpoints": true
     }
   ]
 }

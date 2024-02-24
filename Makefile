@@ -33,7 +33,7 @@ down: ## Stop the project and remove all containers
 
 ##@ SSH
 ssh: ## SSH into the container
-	$(EXECSVELTEKIT) sh
+	$(EXECSVELTEKIT) bash
 
 # Build
 build-app: ## Build the app
