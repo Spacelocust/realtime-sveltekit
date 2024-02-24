@@ -13,3 +13,6 @@ export const sessions = mysqlTable('sessions', {
     .references(() => users.id),
   expiresAt: datetime('expires_at').notNull(),
 });
+
+export type Session = typeof sessions.$inferSelect;
+export type NewSession = typeof sessions.$inferInsert;
