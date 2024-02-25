@@ -1,23 +1,19 @@
-import { Game } from './types';
+import { Game, GameStatus } from './types';
 
 import { db } from '../drizzle/db';
-import { Question, questions } from '../drizzle/table/questions';
-import { Quiz } from '../drizzle/table/quizzes';
 
-export const joinQuiz = () => {};
-export const leaveQuiz = () => {};
-export const answerQuestion = () => {};
+export const join = () => {};
+export const leave = () => {};
+export const answer = () => {};
 
 export const sendQuestionTimer = () => {};
+export const sendQuestionInterludeTimer = () => {};
 export const sendQuestionResult = () => {};
-export const sendQuestionTimerBeforeNext = () => {};
-export const sendQuizTimerBeforeStart = () => {};
-export const sendQuizEnd = () => {};
+export const sendGameResult = () => {};
 
 const time = {
   question: 15,
-  questionBeforeNext: 5,
-  quizBeforeStart: 30,
+  interlude: 5,
 };
 
 /**
@@ -56,6 +52,7 @@ export const getQuiz = async (id: string) => {
     .execute({ id });
 };
 
+// TODO: improve when lobby is implemented
 export const createGame = async (quizId: string): Promise<Game> => {
   const quiz = await getQuiz(quizId);
 
@@ -72,13 +69,18 @@ export const createGame = async (quizId: string): Promise<Game> => {
   }
 
   return {
-    quizId,
+    quiz,
+    status: GameStatus.Waiting,
     scoreboard: {},
     questionsLeft: questionsLeft.filter((q) => q !== currentQuestion.id),
     currentQuestion: {
       timeLeft: time.question,
       question: currentQuestion,
-      answers: {},
     },
   };
+};
+
+export const createLobby = (lobbyId: string) => {
+  // TODO: implement lobby request
+  return {};
 };
