@@ -9,10 +9,11 @@ import { GameStatus } from '../src/shared/enums/lobby';
 
 const { PUBLIC_MAX_PLAYERS, PUBLIC_ANSWER_TIME, PUBLIC_INTERLUDE_TIME } = process.env;
 
-const formatQuestion = (question: Question): QuestionWithoutAnswer => {
+const formatQuestion = (question: Question, isSingleAnswer: boolean): QuestionWithoutAnswer => {
   return {
     ...question,
-    isMultipleChoice: question.choices.filter((choice) => choice.isCorrect).length > 1,
+    isMultipleChoice:
+      !isSingleAnswer ?? question.choices.filter((choice) => choice.isCorrect).length > 1,
     choices: question.choices.map((choice) => {
       const { isCorrect, ...rest } = choice;
       return rest;
@@ -20,10 +21,10 @@ const formatQuestion = (question: Question): QuestionWithoutAnswer => {
   };
 };
 
-export const createCurrentQuestion = (question: Question) => {
+export const createCurrentQuestion = (question: Question, isSingleAnswer: boolean) => {
   return {
     timeLeft: PUBLIC_ANSWER_TIME ? parseInt(PUBLIC_ANSWER_TIME, 10) : 30,
-    question: formatQuestion(question),
+    question: formatQuestion(question, isSingleAnswer),
     countPerAnswer: {},
     correctAnswers: question.choices.reduce<string[]>(
       (acc, curr) => (curr.isCorrect ? [...acc, curr.id] : acc),
@@ -69,6 +70,7 @@ export const createLobby = async (id: string): Promise<LobbyState> => {
     id: lobby.id,
     status: GameStatus.Waiting,
     password: lobby.password,
+    isSingleAnswer: lobby.useSingleAnswers,
     owner: lobby.createdById,
     maxPlayers: PUBLIC_MAX_PLAYERS ? parseInt(PUBLIC_MAX_PLAYERS, 10) : 8,
     players: [],
@@ -78,7 +80,7 @@ export const createLobby = async (id: string): Promise<LobbyState> => {
       quiz: lobby.quiz,
       timeInterludeLeft: PUBLIC_INTERLUDE_TIME ? parseInt(PUBLIC_INTERLUDE_TIME, 10) : 10,
       questionsLeft,
-      currentQuestion: createCurrentQuestion(firstQuestion),
+      currentQuestion: createCurrentQuestion(firstQuestion, lobby.useSingleAnswers),
     },
   };
 };
@@ -87,6 +89,15 @@ export const updateStatusLobby = async (id: string, status: GameStatus) => {
   await db
     .update(lobbies)
     .set({ status })
+    .where(eq(lobbies.id, sql.placeholder('id')))
+    .prepare()
+    .execute({ id });
+};
+
+export const updatePlayerCountLobby = async (id: string, count: number) => {
+  await db
+    .update(lobbies)
+    .set({ playerCount: count })
     .where(eq(lobbies.id, sql.placeholder('id')))
     .prepare()
     .execute({ id });

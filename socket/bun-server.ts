@@ -3,7 +3,12 @@
 /* eslint-disable no-console */
 import { Server } from 'socket.io';
 
-import { createCurrentQuestion, createLobby, updateStatusLobby } from './controllers';
+import {
+  createCurrentQuestion,
+  createLobby,
+  updatePlayerCountLobby,
+  updateStatusLobby,
+} from './controllers';
 import { isAuth } from './middleware';
 import { createEmitter } from './utils';
 
@@ -59,7 +64,7 @@ const createAnswerTimer = (socket: SocketServer) => {
           playerSocket.emit('questionResult', {
             correctAnswers: lobby.game.currentQuestion.correctAnswers,
             countPerAnswer: lobby.game.currentQuestion.countPerAnswer,
-            playerAnswers: lobby.playerCurrentAnswers[player.id],
+            playerAnswers: lobby.playerCurrentAnswers[player.id] ?? [],
           });
         });
 
@@ -111,7 +116,10 @@ const createInterludeTimer = (socket: SocketServer) => {
 
           if (nextQuestion) {
             // Set the current question
-            lobbies[socket.data.lobbyId].game.currentQuestion = createCurrentQuestion(nextQuestion);
+            lobbies[socket.data.lobbyId].game.currentQuestion = createCurrentQuestion(
+              nextQuestion,
+              lobbies[socket.data.lobbyId].isSingleAnswer,
+            );
 
             // Emit the new question to the lobby
             io.to(socket.data.lobbyId).emit(
@@ -188,6 +196,8 @@ io.on('connection', (socket) => {
       });
 
       lobbies[lobbyId].playerSockets[socket.data.user.id] = socket;
+
+      await updatePlayerCountLobby(lobbyId, lobbies[lobbyId].players.length);
 
       io.to(lobbyId).emit('message', {
         type: MessageType.Message,
@@ -295,17 +305,23 @@ io.on('connection', (socket) => {
       }
     });
 
-    if (choices.every((choice) => lobby.game.currentQuestion.correctAnswers.includes(choice))) {
-      lobbies[lobbyId].players = lobbies[lobbyId].players.map((player) => {
-        if (player.id === socket.data.user?.id) {
-          return {
-            ...player,
-            score: player.score + 1,
-          };
-        }
+    if (choices.length > 0) {
+      if (choices.every((choice) => lobby.game.currentQuestion.correctAnswers.includes(choice))) {
+        lobbies[lobbyId].players = lobbies[lobbyId].players.map((player) => {
+          if (player.id === socket.data.user?.id) {
+            return {
+              ...player,
+              score: player.score + 1,
+            };
+          }
 
-        return player;
-      });
+          return player;
+        });
+      }
+    }
+
+    if (Object.values(lobby.playerCurrentAnswers).length === lobby.players.length) {
+      lobbies[socket.data.lobbyId].game.currentQuestion.timeLeft = 4;
     }
 
     emitMessage('Answer received');
@@ -326,6 +342,7 @@ io.on('connection', (socket) => {
             type: MessageType.Message,
             content: `The game has been canceled. the host ${socket.data.user?.username} left the game!`,
           });
+          await updatePlayerCountLobby(lobbyId, 0);
           await updateStatusLobby(lobbyId, GameStatus.Finished);
           delete lobbies[lobbyId];
 
@@ -337,6 +354,8 @@ io.on('connection', (socket) => {
           (player) => player.id !== socket.data.user?.id,
         );
 
+        await updatePlayerCountLobby(lobbyId, lobbies[lobbyId].players.length);
+
         io.to(lobbyId).emit('players', lobbies[lobbyId].players);
 
         io.to(lobbyId).emit('message', {
@@ -345,6 +364,8 @@ io.on('connection', (socket) => {
         });
 
         if (lobbies[lobbyId].players.length <= 0) {
+          await updatePlayerCountLobby(lobbyId, 0);
+          await updateStatusLobby(lobbyId, GameStatus.Finished);
           delete lobbies[lobbyId];
         }
       }
