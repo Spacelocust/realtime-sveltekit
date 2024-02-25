@@ -1,1 +1,4 @@
-export * from '$drizzle/enums/user';
+export enum Role {
+  User = 'user',
+  Admin = 'admin',
+}

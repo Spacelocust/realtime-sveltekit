@@ -1,1 +1,6 @@
-export * from '$drizzle/enums/quizzes';
+export enum Difficulty {
+  Easy = 'easy',
+  Medium = 'medium',
+  Hard = 'hard',
+  Overkill = 'overkill',
+}

@@ -1,5 +1,5 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig, searchForWorkspaceRoot } from 'vite';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [sveltekit()],
@@ -21,9 +21,6 @@ export default defineConfig({
         '**/script/**',
         '**/tests/**',
       ],
-    },
-    fs: {
-      allow: [searchForWorkspaceRoot(process.cwd()), './drizzle/**/*.(ts|js)'],
     },
   },
 });
