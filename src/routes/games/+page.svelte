@@ -137,6 +137,24 @@
           </Form.Control>
         </Form.Field>
 
+        <Form.Field
+          form={lobbyForm}
+          name="useSingleAnswers"
+          class="flex flex-row items-center justify-between rounded-lg border p-4"
+        >
+          <Form.Control let:attrs>
+            <div class="space-y-0.5">
+              <Form.Label>Use single answers</Form.Label>
+              <Form.Description>
+                Whether to allow only one answer per question when the question only has one correct
+                answer.
+              </Form.Description>
+              <Form.FieldErrors />
+            </div>
+            <Switch includeInput {...attrs} bind:checked={$lobbyFormData.useSingleAnswers} />
+          </Form.Control>
+        </Form.Field>
+
         <Form.Field form={lobbyForm} name="password">
           <Form.Control let:attrs>
             <Form.Label>Password</Form.Label>

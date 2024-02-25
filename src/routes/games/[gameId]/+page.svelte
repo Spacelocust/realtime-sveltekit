@@ -5,14 +5,20 @@
   import { toast } from 'svelte-sonner';
 
   import QuestionForm from '$components/game/QuestionForm.svelte';
+  import QuestionResult from '$components/game/QuestionResult.svelte';
   import Scoreboard from '$components/game/Scoreboard.svelte';
   import Button from '$components/ui/button/button.svelte';
   import Input from '$components/ui/input/input.svelte';
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import { GameStatus } from '$shared/enums/lobby';
   import { MessageType } from '$shared/enums/socket';
+  import { formatOrdinals } from '$utils/ordinal';
 
-  import type { Player, QuestionResult, QuestionWithoutAnswer } from '$socket/types';
+  import type {
+    Player,
+    QuestionResult as QuestionResultType,
+    QuestionWithoutAnswer,
+  } from '$socket/types';
   import type { Socket } from '$types/socket';
   import type { PageData } from './$types';
 
@@ -44,7 +50,11 @@
   /**
    * The result of the current question
    */
-  let questionResult: QuestionResult | null = null;
+  let currentQuestionResult: QuestionResultType | null = null;
+  /**
+   * The history of questions and their results
+   */
+  let questionResults: { question: QuestionWithoutAnswer; results: QuestionResultType }[] = [];
   /**
    * The status of the game lobby
    */
@@ -61,6 +71,11 @@
    * Whether the player has answered the current question
    */
   let hasAnsweredCurrentQuestion = false;
+
+  /**
+   * The position of the player in the scoreboard
+   */
+  $: currentPosition = players.findIndex((player) => player.id === data.userId) + 1;
 
   /**
    * When the player submits the password form
@@ -131,13 +146,13 @@
     // When the list of players is updated (will also be triggered when the player joins the lobby)
     socket.on('players', (updatedPlayers) => {
       showLobbyPasswordPrompt = false;
-      players = updatedPlayers;
+      players = updatedPlayers.sort((a, b) => b.score - a.score);
     });
 
     // When a new question is asked
     socket.on('question', (question) => {
       currentQuestion = question;
-      questionResult = null;
+      currentQuestionResult = null;
       hasAnsweredCurrentQuestion = false;
     });
 
@@ -148,7 +163,11 @@
 
     // When the current question cannot be answered anymore (interlude started)
     socket.on('questionResult', (result) => {
-      questionResult = result;
+      currentQuestionResult = result;
+
+      if (currentQuestion) {
+        questionResults = [...questionResults, { question: currentQuestion, results: result }];
+      }
     });
 
     // When the game status is updated
@@ -256,6 +275,11 @@
           </form>
         {:else}
           <!-- Interlude view -->
+          {#if currentQuestionResult}
+            <QuestionResult question={currentQuestion} results={currentQuestionResult} />
+          {:else}
+            <p role="status" aria-live="polite">Waiting for the next question...</p>
+          {/if}
         {/if}
       {:else}
         <!-- Waiting for the next question view -->
@@ -263,6 +287,24 @@
       {/if}
     {:else}
       <!-- Ended view -->
+      <p role="status" aria-live="polite">
+        The game has ended. You scored {players[currentPosition - 1].score} points and finished in {formatOrdinals(
+          currentPosition,
+        )} place.
+      </p>
+      <Button href="/games">Return to games</Button>
+
+      <section>
+        <h3>Your results</h3>
+
+        <ul>
+          {#each questionResults as { question, results } (question.id)}
+            <li>
+              <QuestionResult {question} {results} />
+            </li>
+          {/each}
+        </ul>
+      </section>
     {/if}
   {/if}
 </div>

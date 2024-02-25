@@ -58,6 +58,6 @@
     </fieldset>
   </Card.Content>
   <Card.Footer class="flex justify-end">
-    <Button type="submit">Send</Button>
+    <Button {disabled} type="submit">Send</Button>
   </Card.Footer>
 </Card.Root>

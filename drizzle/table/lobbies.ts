@@ -30,7 +30,7 @@ export const lobbies = mysqlTable('lobbies', {
   }).notNull(),
   private: boolean('private').default(false).notNull(),
   randomizeQuestions: boolean('randomize_questions').default(false).notNull(),
-  showSingleAnswers: boolean('show_single_answers').default(false).notNull(),
+  useSingleAnswers: boolean('use_single_answers').default(false).notNull(),
   status: mysqlEnum('status', [GameStatus.Waiting, GameStatus.InProgress, GameStatus.Finished])
     .default(GameStatus.Waiting)
     .notNull(),

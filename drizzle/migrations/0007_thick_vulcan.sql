@@ -1,0 +1,1 @@
+ALTER TABLE `lobbies` ADD `use_single_answers` boolean DEFAULT false NOT NULL;

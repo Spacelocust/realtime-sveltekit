@@ -61,7 +61,6 @@ export interface ServerToClientEvents {
   questionResult: (questionResult: QuestionResult) => void; // result of the question
   answerTimer: (timeLeft: number) => void; // timer for the question
   interludeTimer: (timeLeft: number) => void; // timer for the interlude between questions
-  scoreboard: (scoreboard: Scoreboard) => void; // current scoreboard
   lobbyStatus: (status: GameStatus) => void; // lobby status
   players: (players: Player[]) => void;
   answered: (isValid: boolean) => void;

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Check, X } from 'lucide-svelte';
 
+  import Progress from '$components/ui/progress/progress.svelte';
   import * as Card from '$lib/components/ui/card';
 
   import type { QuestionResult, QuestionWithoutAnswer } from '$socket/types';
@@ -32,5 +33,27 @@
         <p class="text-destructive">You got it wrong</p>
       {/if}
     </div>
+
+    <ul>
+      {#each question.choices as choice (choice.id)}
+        {@const value = results.countPerAnswer[choice.id] || 0}
+        {@const hasAnswered = results.playerAnswers.includes(choice.id)}
+        {@const isCorrect = results.correctAnswers.includes(choice.id)}
+
+        <li>
+          <Progress {value} max={question.choices.length} />
+          <span>{choice.label}</span>
+          {#if isCorrect}
+            <Check class="w-[20px] h-[20px] text-green-500" />
+            <span class="sr-only"
+              >This answer is correct{hasAnswered ? ' and you answered it' : ''}</span
+            >
+          {:else if hasAnswered}
+            <X class="w-[20px] h-[20px] text-destructive" />
+            <span class="sr-only">This answer is wrong but you answered it</span>
+          {/if}
+        </li>
+      {/each}
+    </ul>
   </Card.Content>
 </Card.Root>

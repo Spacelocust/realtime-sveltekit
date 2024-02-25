@@ -34,6 +34,7 @@ export const load = (async ({ locals, params }) => {
     gameLobby: gameLobbyWithoutPassword,
     hasPassword: !!password,
     isHost: gameLobby.createdById === user.id,
+    userId: user.id,
     title: gameLobby.name,
     seo: {
       title: gameLobby.name,
