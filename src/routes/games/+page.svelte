@@ -83,7 +83,7 @@
         Create a game lobby
       </div></Dialog.Trigger
     >
-    <Dialog.Content>
+    <Dialog.Content class="max-h-svh overflow-y-auto">
       <Dialog.Header>
         <Dialog.Title>Create a game lobby</Dialog.Title>
         <Dialog.Description>
