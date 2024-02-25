@@ -217,7 +217,6 @@
   closeOnEscape={false}
   closeOnOutsideClick={false}
 >
-  <AlertDialog.Trigger />
   <AlertDialog.Content>
     <AlertDialog.Header>
       <AlertDialog.Title>This lobby requires a password</AlertDialog.Title>
@@ -246,56 +245,72 @@
   aria-atomic="false"
   aria-live="polite"
   aria-busy={!socketIsReady ? 'true' : undefined}
+  class="space-y-6"
 >
   {#if !socketIsReady || showLobbyPasswordPrompt}
-    <Loader2 class="animate-spin" />
+    <Loader2 class="animate-spin mx-auto" />
     <span class="sr-only" role="status">Connecting to game... This could take a moment.</span>
   {:else}
     <Scoreboard {players} />
 
-    <h2>Game !</h2>
-
-    {#if gameStatus === GameStatus.Waiting}
-      <!-- Waiting view -->
-      {#if data.isHost}
-        <Button on:click={startGame}>Start game</Button>
-      {:else}
-        <p role="status" aria-live="polite">Waiting for the host to start the game...</p>
-      {/if}
-    {:else if gameStatus === GameStatus.InProgress}
-      {#if timer}
-        <p role="status" aria-live="polite">
-          {#if timerType === 'question'}
-            Time remaining to answer: {timer} second{timer <= 1 ? '' : 's'}
-          {:else}
-            Time remaining until next question: {timer} second{timer <= 1 ? '' : 's'}
-          {/if}
-        </p>
-      {/if}
-
-      <!-- In progress view -->
-      {#if currentQuestion}
-        {#if timerType === 'question'}
-          <!-- Question view -->
-          <form method="post" on:submit|preventDefault={onQuestionSubmit}>
-            <QuestionForm disabled={hasAnsweredCurrentQuestion} question={currentQuestion} />
-          </form>
+    <div class="space-y-6 text-center">
+      {#if gameStatus === GameStatus.Waiting}
+        <!-- Waiting view -->
+        {#if data.isHost}
+          <Button on:click={startGame}>Start game</Button>
         {:else}
-          <!-- Interlude view -->
-          {#if currentQuestionResult}
-            <QuestionResult
-              question={currentQuestion}
-              results={currentQuestionResult}
-              playerCount={players.length}
-            />
+          <p role="status" aria-live="polite">Waiting for the host to start the game...</p>
+        {/if}
+      {:else if gameStatus === GameStatus.InProgress}
+        {#if timer}
+          <p role="status" aria-live="polite">
+            {#if timerType === 'question'}
+              Time remaining to answer: {timer} second{timer <= 1 ? '' : 's'}
+            {:else}
+              Time remaining until next question: {timer} second{timer <= 1 ? '' : 's'}
+            {/if}
+          </p>
+        {/if}
+        <!-- In progress view -->
+        {#if currentQuestion}
+          {#if timerType === 'question'}
+            <!-- Question view -->
+            <form method="post" on:submit|preventDefault={onQuestionSubmit}>
+              <QuestionForm disabled={hasAnsweredCurrentQuestion} question={currentQuestion} />
+            </form>
           {:else}
-            <p role="status" aria-live="polite">Waiting for the next question...</p>
+            <!-- Interlude view -->
+            {#if currentQuestionResult}
+              <QuestionResult question={currentQuestion} results={currentQuestionResult} playerCount={players.length} />
+            {:else}
+              <p role="status" aria-live="polite">Waiting for the next question...</p>
+            {/if}
           {/if}
+        {:else}
+          <!-- Waiting for the next question view -->
+          <p role="status" aria-live="polite">Waiting for the next question...</p>
         {/if}
       {:else}
-        <!-- Waiting for the next question view -->
-        <p role="status" aria-live="polite">Waiting for the next question...</p>
+        <!-- Ended view -->
+        <p role="status" aria-live="polite">
+          The game has ended. You scored {players[currentPosition - 1].score} points and finished in {formatOrdinals(
+            currentPosition,
+          )} place.
+        </p>
+        <Button href="/games">Return to games</Button>
+
+        <section>
+          <h3>Your results</h3>
+          <ul>
+            {#each questionResults as { question, results } (question.id)}
+              <li>
+                <QuestionResult {question} {results} />
+              </li>
+            {/each}
+          </ul>
+        </section>
       {/if}
+<<<<<<< HEAD
     {:else}
       <!-- Ended view -->
       <p role="status" aria-live="polite">
@@ -317,5 +332,8 @@
         </ul>
       </section>
     {/if}
+=======
+    </div>
+>>>>>>> 000fe55 (WIP)
   {/if}
 </div>
