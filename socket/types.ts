@@ -4,7 +4,7 @@ import type { Choice, Question } from '../drizzle/table/questions';
 import type { Quiz } from '../drizzle/table/quizzes';
 import type { MessageType } from '../src/shared/enums/socket';
 import type { Session, User } from 'lucia';
-import type { Socket as SocketIO } from 'socket.io';
+import type { Socket as SocketIO, Server } from 'socket.io';
 
 export type QuestionWithoutAnswer = Omit<Question, 'choices'> & {
   choices: Omit<Choice, 'isCorrect'>[];
@@ -17,10 +17,17 @@ export type Player = {
   score: number;
 };
 
+export type Timers = {
+  answer: Record<string, number>;
+  interlude: Record<string, number>;
+};
+
 // The current question being asked
 export type CurrentQuestion = {
   timeLeft: number;
   question: QuestionWithoutAnswer;
+  correctAnswers: string[];
+  countPerAnswer: Record<string, number>;
 };
 
 // The result of a question after the timer runs out
@@ -37,7 +44,6 @@ export type Scoreboard = Player[]; // [playerId]: score
 export type Game = {
   quiz: Quiz;
   timeInterludeLeft: number;
-  scoreboard: Scoreboard;
   questionsLeft: string[]; // questionsLeft: QuestionId[];
   currentQuestion: CurrentQuestion;
 };
@@ -48,7 +54,7 @@ export type LobbyState = {
   owner: string;
   status: GameStatus;
   password: string | null;
-  maxPlayers: number; // Default 4
+  maxPlayers: number;
   players: Player[];
   game: Game;
 };
@@ -61,8 +67,8 @@ export interface ServerToClientEvents {
   questionResult: (questionResult: QuestionResult) => void; // result of the question
   answerTimer: (timeLeft: number) => void; // timer for the question
   interludeTimer: (timeLeft: number) => void; // timer for the interlude between questions
+  players: (players: Player[]) => void; // current players
   lobbyStatus: (status: GameStatus) => void; // lobby status
-  players: (players: Player[]) => void;
   answered: (isValid: boolean) => void;
 }
 
@@ -78,12 +84,26 @@ export interface SocketData {
   user: User | null;
   session: Session | null;
   lobbyId: string;
-  currentAnswer: string | string[] | null; // current answer for the current question
+  currentAnswers: string[]; // current answer for the current question
 }
 
 export type Socket = SocketIO<
   ServerToClientEvents,
   ClientToServerEvents,
+  InterServerEvents,
+  SocketData
+>;
+
+export type SocketServer = SocketIO<
+  ClientToServerEvents,
+  ServerToClientEvents,
+  InterServerEvents,
+  SocketData
+>;
+
+export type ServerIO = Server<
+  ClientToServerEvents,
+  ServerToClientEvents,
   InterServerEvents,
   SocketData
 >;

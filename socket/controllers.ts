@@ -68,11 +68,15 @@ export const createLobby = async (lobbyId: string): Promise<LobbyState> => {
     game: {
       quiz: lobby.quiz,
       timeInterludeLeft: PUBLIC_INTERLUDE_TIME ? parseInt(PUBLIC_INTERLUDE_TIME, 10) : 10,
-      scoreboard: [],
       questionsLeft,
       currentQuestion: {
         timeLeft: PUBLIC_ANSWER_TIME ? parseInt(PUBLIC_ANSWER_TIME, 10) : 30,
         question: formatQuestion(firstQuestion),
+        countPerAnswer: {},
+        correctAnswers: firstQuestion.choices.reduce<string[]>(
+          (acc, curr) => (curr.isCorrect ? [...acc, curr.id] : acc),
+          [],
+        ),
       },
     },
   };
