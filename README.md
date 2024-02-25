@@ -57,7 +57,7 @@ Librairies, frameworks and tools used in this project.
 Services used by the `compose.yml` file.
 
 - `svelte-kit` : The SvelteKit service. Container name : `cc-app`.
-- `mariadb` : The MariaDB service. Container name : `cc-mariadb`.
+- `mysql` : The MySQL service. Container name : `cc-mysql`.
 - `phpmyadmin` : The PHPMyAdmin service. Container name : `cc-phpmyadmin`.
 
 ## Makefile commands

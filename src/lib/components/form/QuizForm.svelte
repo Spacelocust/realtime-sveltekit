@@ -18,6 +18,7 @@
   const form = superForm<QuizInput>(data, {
     ...defaultFormOptions,
     validators: valibotClient(QuizSchema),
+    invalidateAll: 'force',
     dataType: 'json',
   });
   const { form: formData, errors, delayed, enhance } = form;
@@ -37,7 +38,7 @@
       ...$formData.questions,
       {
         question: '',
-        hint: '',
+        hint: undefined,
         choices: [],
       },
     ];

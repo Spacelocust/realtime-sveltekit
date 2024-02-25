@@ -6,4 +6,4 @@
   export let data: PageData;
 </script>
 
-<QuizForm data={data.form} />
+<QuizForm data={data.form} action="?/new" />

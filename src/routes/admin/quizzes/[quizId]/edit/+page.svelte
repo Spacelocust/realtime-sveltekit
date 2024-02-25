@@ -11,21 +11,21 @@
 
 <QuizForm data={data.form} action="?/edit" />
 
-<form method="post" action="?/delete" use:enhance>
-  <AlertDialog.Root>
-    <AlertDialog.Trigger>Delete</AlertDialog.Trigger>
-    <AlertDialog.Content>
-      <AlertDialog.Header>
-        <AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
-        <AlertDialog.Description>
-          This action cannot be undone. Bad things may happen if players are currently using this
-          quiz.
-        </AlertDialog.Description>
-      </AlertDialog.Header>
-      <AlertDialog.Footer>
-        <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-        <AlertDialog.Action type="submit">Continue</AlertDialog.Action>
-      </AlertDialog.Footer>
-    </AlertDialog.Content>
-  </AlertDialog.Root>
-</form>
+<form id="quiz_delete-form" method="post" action="?/delete" use:enhance></form>
+
+<AlertDialog.Root>
+  <AlertDialog.Trigger>Delete</AlertDialog.Trigger>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
+      <AlertDialog.Description>
+        This action cannot be undone. Bad things may happen if players are currently using this
+        quiz.
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+      <AlertDialog.Action type="submit" form="quiz_delete-form">Continue</AlertDialog.Action>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>

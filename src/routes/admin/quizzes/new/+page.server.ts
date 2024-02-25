@@ -37,17 +37,15 @@ export const actions: Actions = {
     const { questions, ...quiz } = form.data;
     const quizId = randomUUID();
 
-    await db.transaction(async ({ insert }) => {
-      await insert(quizzesTable).values({ id: quizId, ...quiz });
-      await insert(questionsTable).values(
-        questions.map(({ choices, ...question }) => ({
-          id: randomUUID(),
-          quizId,
-          choices: choices.map((choice) => ({ id: randomUUID(), ...choice })),
-          ...question,
-        })),
-      );
-    });
+    await db.insert(quizzesTable).values({ id: quizId, ...quiz });
+    await db.insert(questionsTable).values(
+      questions.map(({ choices, ...question }) => ({
+        id: randomUUID(),
+        quizId,
+        choices: choices.map((choice) => ({ id: randomUUID(), ...choice })),
+        ...question,
+      })),
+    );
 
     redirect(
       302,

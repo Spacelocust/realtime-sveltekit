@@ -1,4 +1,4 @@
-import { desc, eq, getTableColumns, sql } from 'drizzle-orm';
+import { count, desc, eq, getTableColumns } from 'drizzle-orm';
 
 import { questions, quizzes as quizzesTable } from '$server/drizzle';
 
@@ -9,7 +9,7 @@ export const load = (async ({ locals }) => {
   const quizzes = await db
     .select({
       ...getTableColumns(quizzesTable),
-      questionsCount: sql<number>`cast(count(${questions.quizId}) as int)`,
+      questionsCount: count(questions.id),
     })
     .from(quizzesTable)
     .leftJoin(questions, eq(quizzesTable.id, questions.quizId))

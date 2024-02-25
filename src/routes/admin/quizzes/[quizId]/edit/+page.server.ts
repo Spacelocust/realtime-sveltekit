@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { redirect } from 'sveltekit-flash-message/server';
 import { message, superValidate } from 'sveltekit-superforms';
 import { valibot } from 'sveltekit-superforms/adapters';
@@ -61,41 +61,68 @@ export const actions: Actions = {
       .prepare()
       .execute({ quizId: params.quizId });
     const { questions, ...quiz } = form.data;
-    const newOrUpdatedQuestions: typeof questions = [];
+    const newQuestions: typeof questions = [];
+    const updatedQuestions: ((typeof questions)[number] & { id: string })[] = [];
     const deletedQuestions: string[] = [];
 
     questions.forEach((question) => {
-      if (
-        currentQuestions.some((currentQuestion) => currentQuestion.id === question.id) ||
-        !question.id
-      ) {
-        newOrUpdatedQuestions.push(question);
+      if (!question.id) {
+        newQuestions.push(question);
+      } else if (currentQuestions.some((currentQuestion) => currentQuestion.id === question.id)) {
+        updatedQuestions.push(question as (typeof updatedQuestions)[number]);
       } else {
         deletedQuestions.push(question.id);
       }
     });
 
-    await db.transaction(async ({ insert, update, delete: dbDelete }) => {
+    const promises = [
       // Update the quiz
-      await update(quizzesTable)
+      db
+        .update(quizzesTable)
         .set(quiz)
         .where(eq(quizzesTable.id, sql.placeholder('quizId')))
         .prepare()
-        .execute({ quizId: params.quizId });
+        .execute({ quizId: params.quizId }),
+    ];
 
-      // Insert or update questions
-      await insert(questionsTable).values(
-        newOrUpdatedQuestions.map(({ choices, ...question }) => ({
-          id: question.id ?? randomUUID(),
-          quizId: params.quizId,
-          choices: choices.map(({ id, ...choice }) => ({ id: id ?? randomUUID(), ...choice })),
-          ...question,
-        })),
+    // Insert new questions
+    if (newQuestions.length > 0) {
+      promises.push(
+        db.insert(questionsTable).values(
+          newQuestions.map(({ choices, ...question }) => ({
+            id: question.id ?? randomUUID(),
+            quizId: params.quizId,
+            choices: choices.map(({ id, ...choice }) => ({ id: id ?? randomUUID(), ...choice })),
+            ...question,
+          })),
+        ),
       );
+    }
 
-      // Delete questions that were removed
-      await dbDelete(questionsTable).where(inArray(questionsTable.id, deletedQuestions));
-    });
+    // Update existing questions
+    if (updatedQuestions.length > 0) {
+      promises.push(
+        ...updatedQuestions.map(({ choices, ...question }) =>
+          db
+            .update(questionsTable)
+            .set({
+              quizId: params.quizId,
+              choices: choices.map(({ id, ...choice }) => ({ id: id ?? randomUUID(), ...choice })),
+              ...question,
+            })
+            .where(
+              and(eq(questionsTable.id, question.id), eq(questionsTable.quizId, params.quizId)),
+            ),
+        ),
+      );
+    }
+
+    // Delete questions that were removed
+    if (deletedQuestions.length > 0) {
+      promises.push(db.delete(questionsTable).where(inArray(questionsTable.id, deletedQuestions)));
+    }
+
+    await Promise.all(promises);
 
     return message(form, 'Quiz updated successfully.');
   },

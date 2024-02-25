@@ -42,7 +42,7 @@ export const QuizSchema = object({
     'Please select a difficulty.',
   ),
   questions: array(merge([QuestionSchema, object({ id: optional(string()) })]), [
-    minLength(5, 'Quiz must contain at least 5 questions.'),
+    minLength(1, 'Quiz must contain at least 5 questions.'),
     maxLength(20, 'Quiz must contain at most 20 questions.'),
     every(
       (value, index, otherQuestions) =>
