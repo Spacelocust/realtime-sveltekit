@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { json, mysqlTable, text, varchar } from 'drizzle-orm/mysql-core';
+import { json, mysqlTable, text, timestamp, varchar } from 'drizzle-orm/mysql-core';
 
 import { quizzes } from './quizzes';
 
@@ -22,7 +22,8 @@ export const questions = mysqlTable('questions', {
     length: 255,
   })
     .notNull()
-    .references(() => quizzes.id),
+    .references(() => quizzes.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
 export const questionsRelations = relations(questions, ({ one }) => ({

@@ -1,6 +1,7 @@
 import { Lucia } from 'lucia';
 
 import { adapter } from '../drizzle/db';
+import { Role } from '../drizzle/table/users';
 
 const { NODE_ENV } = process.env;
 
@@ -13,6 +14,7 @@ export const auth = new Lucia(adapter, {
   getUserAttributes: (data) => {
     return {
       username: data.username,
+      role: data.role,
     };
   },
 });
@@ -26,4 +28,5 @@ declare module 'lucia' {
 
 interface DatabaseUserAttributes {
   username: string;
+  role: Role;
 }

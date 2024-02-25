@@ -1,8 +1,26 @@
-import { array, enum_, maxLength, minLength, object, optional, string, type Input } from 'valibot';
+import {
+  array,
+  every,
+  maxLength,
+  merge,
+  minLength,
+  object,
+  optional,
+  picklist,
+  string,
+  type Input,
+} from 'valibot';
 
-import { Difficulty } from '$server/drizzle';
+import { Difficulty } from '$lib/enums/quizzes';
 
 import { QuestionSchema } from './question';
+
+export const difficultyOptions = [
+  { value: Difficulty.Easy, label: 'Easy' },
+  { value: Difficulty.Medium, label: 'Medium' },
+  { value: Difficulty.Hard, label: 'Hard' },
+  { value: Difficulty.Overkill, label: 'Overkill' },
+] as const;
 
 export const QuizSchema = object({
   title: string('Please enter a title.', [
@@ -19,10 +37,21 @@ export const QuizSchema = object({
       maxLength(255, 'Category must contain at most 255 characters.'),
     ]),
   ),
-  difficulty: enum_(Difficulty, 'Please select a difficulty.'),
-  questions: array(QuestionSchema, [
+  difficulty: picklist(
+    [Difficulty.Easy, Difficulty.Medium, Difficulty.Hard, Difficulty.Overkill],
+    'Please select a difficulty.',
+  ),
+  questions: array(merge([QuestionSchema, object({ id: optional(string()) })]), [
     minLength(5, 'Quiz must contain at least 5 questions.'),
     maxLength(20, 'Quiz must contain at most 20 questions.'),
+    every(
+      (value, index, otherQuestions) =>
+        !otherQuestions.some(
+          (otherQuestion, otherIndex) =>
+            otherIndex !== index && otherQuestion.question === value.question,
+        ),
+      'Questions must be unique.',
+    ),
   ]),
 });
 

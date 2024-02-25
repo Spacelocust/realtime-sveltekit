@@ -12,6 +12,7 @@ import {
 } from 'valibot';
 
 export const ChoiceSchema = object({
+  id: optional(string()),
   label: string('Please enter a label.', [
     minLength(1, 'Label must contain at least 1 character.'),
     maxLength(100, 'Label must contain at most 255 characters.'),
@@ -32,7 +33,10 @@ export const QuestionSchema = object({
     maxLength(5, 'Question must contain at most 5 choices.'),
     some((value) => value.isCorrect, 'Question must contain at least 1 correct choice.'),
     every(
-      (value, index, choices) => !choices.some((otherChoice) => otherChoice.label === value.label),
+      (value, index, otherChoices) =>
+        !otherChoices.some(
+          (otherChoice, otherIndex) => otherIndex !== index && otherChoice.label === value.label,
+        ),
       'Choices must be unique.',
     ),
   ]),

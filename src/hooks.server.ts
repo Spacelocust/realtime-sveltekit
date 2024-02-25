@@ -1,3 +1,4 @@
+import { Role } from '$lib/enums/user';
 import { auth } from '$server/auth';
 import { db } from '$server/drizzle';
 
@@ -30,6 +31,15 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.cookies.set(sessionCookie.name, sessionCookie.value, {
       path: '.',
       ...sessionCookie.attributes,
+    });
+  }
+
+  if (event.url.pathname.startsWith('/admin') && user?.role !== Role.Admin) {
+    return new Response(null, {
+      status: 303,
+      headers: {
+        location: '/',
+      },
     });
   }
 

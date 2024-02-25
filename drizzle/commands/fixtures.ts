@@ -1,7 +1,8 @@
 import { randomUUID } from 'crypto';
 
 import { db } from '../db';
-import { Role, users, type NewUser } from '../table/users';
+import { Role } from '../enums/user';
+import { users, type NewUser } from '../table/users';
 
 const password = await Bun.password.hash('xxx');
 const userValues: NewUser[] = [

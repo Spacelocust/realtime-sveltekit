@@ -1,14 +1,9 @@
 import { relations } from 'drizzle-orm';
-import { mysqlEnum, mysqlTable, text, varchar } from 'drizzle-orm/mysql-core';
+import { mysqlEnum, mysqlTable, text, timestamp, varchar } from 'drizzle-orm/mysql-core';
 
 import { questions } from './questions';
 
-export enum Difficulty {
-  Easy = 'easy',
-  Medium = 'medium',
-  Hard = 'hard',
-  Overkill = 'overkill',
-}
+import { Difficulty } from '../enums/quizzes';
 
 export const quizzes = mysqlTable('quizzes', {
   id: varchar('id', {
@@ -27,6 +22,7 @@ export const quizzes = mysqlTable('quizzes', {
     Difficulty.Hard,
     Difficulty.Overkill,
   ]).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
 export const quizzesRelations = relations(quizzes, ({ many }) => ({
