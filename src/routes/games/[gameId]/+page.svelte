@@ -54,7 +54,11 @@
   /**
    * The history of questions and their results
    */
-  let questionResults: { question: QuestionWithoutAnswer; results: QuestionResultType }[] = [];
+  let questionResults: {
+    question: QuestionWithoutAnswer;
+    results: QuestionResultType;
+    playerCount: number;
+  }[] = [];
   /**
    * The status of the game lobby
    */
@@ -166,7 +170,10 @@
       currentQuestionResult = result;
 
       if (currentQuestion) {
-        questionResults = [...questionResults, { question: currentQuestion, results: result }];
+        questionResults = [
+          ...questionResults,
+          { question: currentQuestion, results: result, playerCount: players.length },
+        ];
       }
     });
 
@@ -276,7 +283,11 @@
         {:else}
           <!-- Interlude view -->
           {#if currentQuestionResult}
-            <QuestionResult question={currentQuestion} results={currentQuestionResult} />
+            <QuestionResult
+              question={currentQuestion}
+              results={currentQuestionResult}
+              playerCount={players.length}
+            />
           {:else}
             <p role="status" aria-live="polite">Waiting for the next question...</p>
           {/if}
@@ -298,9 +309,9 @@
         <h3>Your results</h3>
 
         <ul>
-          {#each questionResults as { question, results } (question.id)}
+          {#each questionResults as { question, results, playerCount } (question.id)}
             <li>
-              <QuestionResult {question} {results} />
+              <QuestionResult {question} {results} {playerCount} />
             </li>
           {/each}
         </ul>

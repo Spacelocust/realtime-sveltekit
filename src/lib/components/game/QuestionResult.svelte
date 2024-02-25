@@ -9,6 +9,7 @@
 
   export let question: QuestionWithoutAnswer;
   export let results: QuestionResult;
+  export let playerCount: number;
 
   $: hasGoodAnswers = results.correctAnswers.every((answer) =>
     results.playerAnswers.includes(answer),
@@ -42,7 +43,7 @@
         {@const isCorrect = results.correctAnswers.includes(choice.id)}
 
         <li>
-          <Progress {value} max={question.choices.length} />
+          <Progress {value} max={playerCount} />
           <span>{choice.label}</span>
           {#if isCorrect}
             <Check class="w-[20px] h-[20px] text-green-500" />
