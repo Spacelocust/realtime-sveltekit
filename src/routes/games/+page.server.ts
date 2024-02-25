@@ -34,6 +34,9 @@ export const load = (async ({ locals, url }) => {
   const [gameLobbies, quizzes] = await Promise.all([
     db.query.lobbies
       .findMany({
+        columns: {
+          password: false,
+        },
         where: (lobbies, { eq, not, and, lt, like, sql }) =>
           and(
             not(eq(lobbies.private, true)),

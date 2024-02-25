@@ -1,4 +1,4 @@
-<section>
+<section aria-hidden="true">
   <div class="tube">
     <div class="strip"></div>
     <div class="strip"></div>

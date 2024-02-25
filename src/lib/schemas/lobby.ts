@@ -21,6 +21,7 @@ export const LobbySchema = object({
   ),
   randomizeQuestions: boolean('Please select whether to randomize questions or not.'),
   private: boolean('Please select whether the lobby is private or not.'),
+  useSingleAnswers: boolean('Please select whether to use single answers or not.'),
   password: optional(
     string('Please enter a password.', [
       maxLength(20, 'Password must be at most 20 characters.'),

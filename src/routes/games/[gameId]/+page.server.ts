@@ -7,9 +7,9 @@ import { GameStatus } from '$shared/enums/lobby';
 import type { PageServerLoad } from './$types';
 
 export const load = (async ({ locals, params }) => {
-  const { db, session } = locals;
+  const { db, session, user } = locals;
 
-  if (!session) {
+  if (!session || !user) {
     redirect(303, '/login');
   }
 
@@ -28,8 +28,13 @@ export const load = (async ({ locals, params }) => {
     error(404, 'Game not found.');
   }
 
+  const { password, ...gameLobbyWithoutPassword } = gameLobby;
+
   return {
-    gameLobby,
+    gameLobby: gameLobbyWithoutPassword,
+    hasPassword: !!password,
+    isHost: gameLobby.createdById === user.id,
+    userId: user.id,
     title: gameLobby.name,
     seo: {
       title: gameLobby.name,
