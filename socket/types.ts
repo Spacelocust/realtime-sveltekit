@@ -1,18 +1,23 @@
-import type { Question } from '../drizzle/table/questions';
+import type { Choice, Question } from '../drizzle/table/questions';
 import type { Quiz } from '../drizzle/table/quizzes';
 import type { Session, User } from 'lucia';
 import type { Socket as SocketIO } from 'socket.io';
 
-export enum GameStatus {
+export enum LobbyStatus {
   Waiting = 'waiting',
   InProgress = 'in-progress',
   Finished = 'finished',
 }
 
+type QuestionWithoutAnswer = Omit<Question, 'choices'> & {
+  choices: Omit<Choice, 'isCorrect'>[];
+  isMultipleChoice: boolean;
+};
+
 // The current question being asked
 export type CurrentQuestion = {
   timeLeft: number;
-  question: Question;
+  question: QuestionWithoutAnswer;
 };
 
 // The result of a question after the timer runs out
@@ -27,7 +32,6 @@ export type Scoreboard = Record<string, number>; // [playerId]: score
 // The game state
 export type Game = {
   quiz: Quiz;
-  status: GameStatus;
   scoreboard: Scoreboard;
   questionsLeft: string[]; // questionsLeft: QuestionId[];
   currentQuestion: CurrentQuestion;
@@ -35,10 +39,12 @@ export type Game = {
 
 // The lobby state
 export type Lobby = {
-  key: string;
+  id: string;
+  code: string;
   owner: string;
+  status: LobbyStatus;
   password?: string;
-  maxPlayers: number;
+  maxPlayers: number; // Default 4
   players: string[]; // players: UserId[];
   game: Game;
 };
@@ -51,12 +57,13 @@ export interface ServerToClientEvents {
   questionTimer: (timeLeft: number) => void; // timer for the question
   questionInterludeTimer: (timeLeft: number) => void; // timer for the interlude between questions
   questionResult: (questionResult: QuestionResult) => void; // result of the question
-  gameResult: (scoreboard: Scoreboard) => void; // result of the game
+  scoreboard: (scoreboard: Scoreboard) => void; // current scoreboard
+  lobbyStatus: (status: LobbyStatus) => void; // lobby status
 }
 
 export interface ClientToServerEvents {
   start: () => void; // start the game
-  join: (lobbyKey: string, password?: string) => void; // join a lobby
+  join: (code: string, password?: string) => void; // join a lobby
   answer: (choiceId: string) => void; // answer the current question
 }
 
@@ -65,7 +72,7 @@ export interface InterServerEvents {}
 export interface SocketData {
   user: User | null;
   session: Session | null;
-  lobbyKey: string;
+  lobbyCode: string;
   currentAnswer: string | string[] | null; // current answer for the current question
 }
 
