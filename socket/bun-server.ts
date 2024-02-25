@@ -3,7 +3,7 @@
 /* eslint-disable no-console */
 import { Server } from 'socket.io';
 
-import { createLobby } from './controllers';
+import { createCurrentQuestion, createLobby, updateStatusLobby } from './controllers';
 import { isAuth } from './middleware';
 import { createEmitter } from './utils';
 
@@ -18,7 +18,6 @@ import type {
   SocketData,
   SocketServer,
   Timers,
-  ServerIO,
 } from './types';
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>();
@@ -35,45 +34,93 @@ const timers: Timers = {
 const createAnswerTimer = (socket: SocketServer) => {
   return setInterval(() => {
     const lobby = lobbies[socket.data.lobbyId];
+
     if (lobby) {
       if (lobby.game.currentQuestion.timeLeft > 0) {
+        // Decrease the time left
         const time = (lobbies[socket.data.lobbyId].game.currentQuestion.timeLeft =
           lobby.game.currentQuestion.timeLeft - 1);
 
+        // Emit the time left to the lobby
         io.to(socket.data.lobbyId).emit('answerTimer', time);
       } else {
-        clearInterval(timers.answer[socket.data.lobbyId]);
-        socket.emit('questionResult', {
-          playerAnswers: socket.data.currentAnswers,
-          correctAnswers: lobby.game.currentQuestion.correctAnswers,
-          countPerAnswer: lobby.game.currentQuestion.countPerAnswer,
+        // Clear the answer timer
+        if (timers.answer[socket.data.lobbyId]) {
+          clearInterval(timers.answer[socket.data.lobbyId]);
+        }
+
+        // Send the result of the question for each player
+        lobby.players.forEach((player) => {
+          const playerSocket = lobby.playerSockets[player.id];
+
+          playerSocket.emit('questionResult', {
+            correctAnswers: lobby.game.currentQuestion.correctAnswers,
+            countPerAnswer: lobby.game.currentQuestion.countPerAnswer,
+            playerAnswers: lobby.playerCurrentAnswers[player.id],
+          });
         });
-        createInterludeTimer(socket);
+
+        // Launch the interlude timer
+        if (timers.interlude[socket.data.lobbyId]) {
+          createInterludeTimer(socket);
+        }
       }
     }
   }, 1000);
 };
 
 const createInterludeTimer = (socket: SocketServer) => {
-  return setInterval(() => {
+  return setInterval(async () => {
     const lobby = lobbies[socket.data.lobbyId];
+
     if (lobby) {
       if (lobby.game.timeInterludeLeft > 0) {
+        // Decrease the time left
         const time = (lobbies[socket.data.lobbyId].game.timeInterludeLeft =
           lobby.game.timeInterludeLeft - 1);
 
+        // Emit the time left to the lobby
         io.to(socket.data.lobbyId).emit('interludeTimer', time);
       } else {
-        clearInterval(timers.answer[socket.data.lobbyId]);
+        // Clear the interlude timer
+        if (timers.interlude[socket.data.lobbyId]) {
+          clearInterval(timers.interlude[socket.data.lobbyId]);
+        }
+
+        // Get next question id and remove it from the list
         const nextQuestionId = lobbies[socket.data.lobbyId].game.questionsLeft.shift();
+
         if (nextQuestionId) {
-          // TODO: get next question
-          // lobbies[socket.data.lobbyId].game.currentQuestion = nextQuestion;
-          // io.to(socket.data.lobbyId).emit('question', nextQuestion);
-          // createAnswerTimer(socket);
+          // Get next question
+          const nextQuestion = lobbies[socket.data.lobbyId].game.quiz.questions.find(
+            (question) => question.id === nextQuestionId,
+          );
+
+          if (nextQuestion) {
+            // Set the current question
+            lobbies[socket.data.lobbyId].game.currentQuestion = createCurrentQuestion(nextQuestion);
+
+            // Emit the new question to the lobby
+            io.to(socket.data.lobbyId).emit(
+              'question',
+              lobbies[socket.data.lobbyId].game.currentQuestion.question,
+            );
+
+            // Start the answer timer
+            if (!timers.answer[socket.data.lobbyId]) {
+              timers.answer[socket.data.lobbyId] = createAnswerTimer(socket);
+            }
+          }
         } else {
+          // Finish the game if there are no more questions
+
+          // Set the lobby status to finished
           lobbies[socket.data.lobbyId].status = GameStatus.Finished;
+          await updateStatusLobby(socket.data.lobbyId, GameStatus.Finished);
+
+          // Emit the lobby status to the lobby
           io.to(socket.data.lobbyId).emit('lobbyStatus', GameStatus.Finished);
+          io.to(socket.data.lobbyId).emit('players', lobbies[socket.data.lobbyId].players);
         }
       }
     }
@@ -81,7 +128,7 @@ const createInterludeTimer = (socket: SocketServer) => {
 };
 
 io.on('connection', (socket) => {
-  const { emitError } = createEmitter(socket);
+  const { emitError, emitMessage } = createEmitter(socket);
 
   socket.on('join', async (lobbyId, password) => {
     let lobby = lobbies[lobbyId];
@@ -118,18 +165,22 @@ io.on('connection', (socket) => {
     socket.join(lobbyId);
     socket.data.lobbyId = lobbyId;
 
-    lobbies[lobbyId].players.push({
-      id: socket.data.user?.id || '',
-      name: socket.data.user?.username || '',
-      score: 0,
-    });
+    if (socket.data.user) {
+      lobbies[lobbyId].players.push({
+        id: socket.data.user.id,
+        name: socket.data.user.username,
+        score: 0,
+      });
 
-    io.to(lobbyId).emit('message', {
-      type: MessageType.Message,
-      content: `${socket.data.user?.username} joined the game!`,
-    });
+      lobbies[lobbyId].playerSockets[socket.data.user.id] = socket;
 
-    io.to(lobbyId).emit('players', lobbies[lobbyId].players);
+      io.to(lobbyId).emit('message', {
+        type: MessageType.Message,
+        content: `${socket.data.user.username} joined the game!`,
+      });
+
+      io.to(lobbyId).emit('players', lobbies[lobbyId].players);
+    }
   });
 
   socket.on('start', () => {
@@ -163,17 +214,70 @@ io.on('connection', (socket) => {
 
     lobbies[lobbyId].status = GameStatus.InProgress;
 
+    io.to(socket.data.lobbyId).emit('lobbyStatus', GameStatus.InProgress);
+
     io.to(lobbyId).emit('message', {
       type: MessageType.Message,
       content: 'Game started!',
     });
 
-    if (!timers[lobbyId]) {
+    if (!timers.answer[lobbyId]) {
       createAnswerTimer(socket);
     }
   });
 
-  socket.on('answer', (answer) => {});
+  socket.on('answer', (choices) => {
+    const { lobbyId } = socket.data;
+
+    if (!socket.data.user) {
+      emitError('You need to be logged in to answer');
+      return;
+    }
+
+    if (!lobbyId) {
+      emitError('You need to join a lobby to answer');
+      return;
+    }
+
+    const lobby = lobbies[lobbyId];
+    if (!lobby) {
+      emitError('Lobby not found');
+      return;
+    }
+
+    if (lobby.status !== GameStatus.InProgress) {
+      emitError('Game is not in progress');
+      return;
+    }
+
+    if (!lobby.players.find((player) => player.id === socket.data.user?.id)) {
+      emitError('You are not in the lobby');
+      return;
+    }
+
+    if (lobby.game.currentQuestion.timeLeft <= 0) {
+      emitError('Time is up');
+      return;
+    }
+
+    if (lobby.playerCurrentAnswers[socket.data.user?.id].length > 0) {
+      emitError('You already answered this question');
+      return;
+    }
+
+    lobbies[lobbyId].playerCurrentAnswers[socket.data.user?.id] = choices;
+
+    choices.forEach((choice) => {
+      if (lobbies[lobbyId].game.currentQuestion.countPerAnswer[choice]) {
+        lobbies[lobbyId].game.currentQuestion.countPerAnswer[choice] += 1;
+      } else {
+        lobbies[lobbyId].game.currentQuestion.countPerAnswer[choice] = 1;
+      }
+    });
+
+    emitMessage('Answer received');
+    socket.emit('answered', true);
+  });
 
   socket.on('disconnect', () => {
     const { lobbyId } = socket.data;

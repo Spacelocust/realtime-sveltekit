@@ -18,8 +18,8 @@ export type Player = {
 };
 
 export type Timers = {
-  answer: Record<string, number>;
-  interlude: Record<string, number>;
+  answer: Record<string, Timer>;
+  interlude: Record<string, Timer>;
 };
 
 // The current question being asked
@@ -42,7 +42,7 @@ export type Scoreboard = Player[]; // [playerId]: score
 
 // The game state
 export type Game = {
-  quiz: Quiz;
+  quiz: Quiz & { questions: Question[] };
   timeInterludeLeft: number;
   questionsLeft: string[]; // questionsLeft: QuestionId[];
   currentQuestion: CurrentQuestion;
@@ -57,6 +57,9 @@ export type LobbyState = {
   maxPlayers: number;
   players: Player[];
   game: Game;
+  // TODO: improve later
+  playerCurrentAnswers: Record<string, string[]>; // [playerId]: choiceId[]
+  playerSockets: Record<string, SocketServer>;
 };
 
 export type LobbyStates = Record<string, LobbyState>; // [id]: Lobby
@@ -75,7 +78,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   start: () => void; // start the game
   join: (id: string, password?: string) => void; // join a lobby
-  answer: (choices: string[]) => void;
+  answer: (choices: string[]) => void; // add an answer
 }
 
 export interface InterServerEvents {}
@@ -84,7 +87,6 @@ export interface SocketData {
   user: User | null;
   session: Session | null;
   lobbyId: string;
-  currentAnswers: string[]; // current answer for the current question
 }
 
 export type Socket = SocketIO<
