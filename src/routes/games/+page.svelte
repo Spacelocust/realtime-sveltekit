@@ -5,6 +5,7 @@
 
   import Button from '$components/ui/button/button.svelte';
   import Input from '$components/ui/input/input.svelte';
+  import Label from '$components/ui/label/label.svelte';
   import Switch from '$components/ui/switch/switch.svelte';
   import Textarea from '$components/ui/textarea/textarea.svelte';
   import * as Dialog from '$lib/components/ui/dialog';
@@ -16,6 +17,7 @@
     type LobbyCodeInput,
     LobbyCodeSchema,
   } from '$lib/schemas/lobby';
+  import { GameStatus } from '$shared/enums/lobby';
   import { defaultFormOptions } from '$utils/form';
 
   import type { PageData } from './$types';
@@ -48,6 +50,18 @@
     timeout: lobbyCodeTimeout,
   } = lobbyCodeForm;
   const formattedQuizzes = data.quizzes.map((quiz) => ({ value: quiz.id, label: quiz.title }));
+  const formattedFilterQuizzes = [{ value: '', label: 'Any quiz' }, ...formattedQuizzes];
+  const statusChoices = [
+    { value: '', label: 'Any status' },
+    { value: GameStatus.Waiting, label: 'Waiting' },
+    { value: GameStatus.InProgress, label: 'In progress' },
+  ];
+
+  const selectedFilterStatus =
+    statusChoices.find((status) => status.value === data.statusFilter) ?? statusChoices[0];
+  const selectedFilterQuiz =
+    formattedFilterQuizzes.find((quiz) => quiz.value === data.quizIdFilter) ??
+    formattedFilterQuizzes[0];
 
   $: selectedQuiz = formattedQuizzes.find((quiz) => quiz.value === $lobbyFormData.quizId);
   $: if ($lobbyTimeout || $lobbyCodeTimeout) {
@@ -145,8 +159,8 @@
               <Select.Value placeholder="Select the quiz to use for this lobby." />
             </Select.Trigger>
             <Select.Content>
-              {#each data.quizzes as quiz (quiz.id)}
-                <Select.Item value={quiz.id} label={quiz.title} />
+              {#each formattedQuizzes as quiz (quiz.value)}
+                <Select.Item value={quiz.value} label={quiz.label} />
               {/each}
             </Select.Content>
           </Select.Root>
@@ -188,14 +202,49 @@
   </Dialog.Content>
 </Dialog.Root>
 
-{#if data.lobbies.length > 0}
-  <ul>
-    {#each data.lobbies as lobby}
-      <li>
-        <a href="/games/{lobby.id}">{lobby.name}</a>
-      </li>
-    {/each}
-  </ul>
-{:else}
-  <p role="status">No lobbies found.</p>
-{/if}
+<form method="get" novalidate data-sveltekit-keepfocus>
+  <fieldset>
+    <legend>Filter</legend>
+
+    <div class="grid w-full max-w-sm items-center gap-1.5">
+      <Label for="filter-name">Name</Label>
+      <Input name="name" type="text" id="filter-name" />
+    </div>
+
+    <Select.Root name="status" selected={selectedFilterStatus}>
+      <Select.Trigger class="w-[180px]"><Select.Value placeholder="Status" /></Select.Trigger>
+      <Select.Content>
+        {#each statusChoices as status}
+          <Select.Item value={status.value}>{status.label}</Select.Item>
+        {/each}
+      </Select.Content>
+      <Select.Input />
+    </Select.Root>
+
+    <Select.Root name="quizId" selected={selectedFilterQuiz}>
+      <Select.Trigger class="w-[180px]"><Select.Value placeholder="Quiz" /></Select.Trigger>
+      <Select.Content>
+        {#each formattedFilterQuizzes as quiz (quiz.value)}
+          <Select.Item value={quiz.value}>{quiz.label}</Select.Item>
+        {/each}
+      </Select.Content>
+      <Select.Input />
+    </Select.Root>
+  </fieldset>
+
+  <Button type="submit" aria-controls="lobbies-container">Filter</Button>
+</form>
+
+<div id="lobbies-container" aria-atomic="true" aria-live="polite">
+  {#if data.lobbies.length > 0}
+    <ul>
+      {#each data.lobbies as lobby}
+        <li>
+          <a href="/games/{lobby.id}">{lobby.name}</a>
+        </li>
+      {/each}
+    </ul>
+  {:else}
+    <p role="status">No lobbies found.</p>
+  {/if}
+</div>

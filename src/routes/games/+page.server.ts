@@ -4,10 +4,16 @@ import { generateId } from 'lucia';
 import { redirect } from 'sveltekit-flash-message/server';
 import { setError, superValidate } from 'sveltekit-superforms';
 import { valibot } from 'sveltekit-superforms/adapters';
+import { safeParse } from 'valibot';
 
 import { randomUUID } from 'crypto';
 
 import { LobbyCodeSchema, LobbySchema } from '$lib/schemas/lobby';
+import {
+  LobbyFilterNameSchema,
+  LobbyFilterQuizIdSchema,
+  LobbyFilterStatusSchema,
+} from '$lib/schemas/lobby-filter';
 import { lobbies as lobbiesTable, quizzes as quizzesTable } from '$server/drizzle';
 import { GameStatus } from '$shared/enums/lobby';
 
@@ -15,27 +21,42 @@ import type { Actions, PageServerLoad } from './$types';
 
 import { PUBLIC_MAX_PLAYERS } from '$env/static/public';
 
-export const load = (async ({ locals }) => {
+export const load = (async ({ locals, url }) => {
   const { db, session } = locals;
 
   if (!session) {
     redirect(303, '/login');
   }
 
+  const nameFilter = safeParse(LobbyFilterNameSchema, url.searchParams.get('name'));
+  const statusFilter = safeParse(LobbyFilterStatusSchema, url.searchParams.get('status'));
+  const quizIdFilter = safeParse(LobbyFilterQuizIdSchema, url.searchParams.get('quizId'));
   const [gameLobbies, quizzes] = await Promise.all([
     db.query.lobbies
       .findMany({
-        where: (lobbies, { eq, not, and, lt, sql }) =>
+        where: (lobbies, { eq, not, and, lt, like, sql }) =>
           and(
-            not(eq(lobbies.status, sql.placeholder('finishedStatus'))),
             not(eq(lobbies.private, true)),
             lt(lobbies.playerCount, sql.placeholder('maxPlayers')),
+            nameFilter.success && nameFilter.output
+              ? like(lobbies.name, sql.placeholder('name'))
+              : undefined,
+            statusFilter.success && statusFilter.output
+              ? eq(lobbies.status, sql.placeholder('status'))
+              : not(eq(lobbies.status, sql.placeholder('finishedStatus'))),
+            quizIdFilter.success && quizIdFilter.output
+              ? eq(lobbies.quizId, sql.placeholder('quizId'))
+              : undefined,
           ),
       })
       .prepare()
       .execute({
         maxPlayers: parseInt(PUBLIC_MAX_PLAYERS, 10),
-        finishedStatus: GameStatus.Finished,
+        finishedStatus:
+          statusFilter.success && statusFilter.output ? undefined : GameStatus.Finished,
+        name: nameFilter.success ? `%${nameFilter.output}%` : undefined,
+        status: statusFilter.success ? statusFilter.output : undefined,
+        quizId: quizIdFilter.success ? quizIdFilter.output : undefined,
       }),
     db.select().from(quizzesTable).orderBy(desc(quizzesTable.title)),
   ]);
@@ -45,6 +66,9 @@ export const load = (async ({ locals }) => {
     quizzes,
     lobbyForm: await superValidate(valibot(LobbySchema)),
     lobbyCodeForm: await superValidate(valibot(LobbyCodeSchema)),
+    nameFilter: nameFilter.success ? nameFilter.output : '',
+    statusFilter: statusFilter.success ? statusFilter.output : '',
+    quizIdFilter: quizIdFilter.success ? quizIdFilter.output : '',
     title: 'Game Lobbies',
     seo: {
       title: 'Game Lobbies',

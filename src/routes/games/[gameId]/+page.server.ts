@@ -1,5 +1,8 @@
 import { error } from '@sveltejs/kit';
+import { and } from 'drizzle-orm';
 import { redirect } from 'sveltekit-flash-message/server';
+
+import { GameStatus } from '$shared/enums/lobby';
 
 import type { PageServerLoad } from './$types';
 
@@ -12,10 +15,14 @@ export const load = (async ({ locals, params }) => {
 
   const gameLobby = await db.query.lobbies
     .findFirst({
-      where: (lobbies, { eq, sql }) => eq(lobbies.id, sql.placeholder('gameId')),
+      where: (lobbies, { eq, not, sql }) =>
+        and(
+          eq(lobbies.id, sql.placeholder('gameId')),
+          not(eq(lobbies.status, sql.placeholder('finishedStatus'))),
+        ),
     })
     .prepare()
-    .execute({ gameId: params.gameId });
+    .execute({ gameId: params.gameId, finishedStatus: GameStatus.Finished });
 
   if (!gameLobby) {
     error(404, 'Game not found.');
