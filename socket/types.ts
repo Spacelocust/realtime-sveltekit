@@ -25,8 +25,8 @@ export type CurrentQuestion = {
 
 // The result of a question after the timer runs out
 export type QuestionResult = {
-  playerAnswer: string[]; // choiceId[]
-  correctAnswer: string[]; // choiceId[]
+  playerAnswers: string[]; // choiceId[]
+  correctAnswers: string[]; // choiceId[]
   countPerAnswer: Record<string, number>; // [choiceId]: selected count
 };
 
@@ -57,19 +57,20 @@ export type LobbyStates = Record<string, LobbyState>; // [id]: Lobby
 
 export interface ServerToClientEvents {
   message: (message: { type: MessageType; content: string }) => void;
-  question: (question: Question) => void; // new question
+  question: (question: QuestionWithoutAnswer) => void; // new question
   questionResult: (questionResult: QuestionResult) => void; // result of the question
   answerTimer: (timeLeft: number) => void; // timer for the question
   interludeTimer: (timeLeft: number) => void; // timer for the interlude between questions
   scoreboard: (scoreboard: Scoreboard) => void; // current scoreboard
   lobbyStatus: (status: GameStatus) => void; // lobby status
+  players: (players: Player[]) => void;
+  answered: (isValid: boolean) => void;
 }
 
 export interface ClientToServerEvents {
   start: () => void; // start the game
   join: (id: string, password?: string) => void; // join a lobby
-  addAnswer: (choiceId: string) => void; // add an answer
-  removeAnswer: (choiceId: string) => void; // remove an answer
+  answer: (choices: string[]) => void;
 }
 
 export interface InterServerEvents {}
