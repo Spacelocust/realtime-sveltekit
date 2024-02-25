@@ -14,7 +14,9 @@
 <form id="quiz_delete-form" method="post" action="?/delete" use:enhance></form>
 
 <AlertDialog.Root>
-  <AlertDialog.Trigger>Delete</AlertDialog.Trigger>
+  <AlertDialog.Trigger>
+    <span class="font-semibold text-red-500">Delete quizz</span>
+  </AlertDialog.Trigger>
   <AlertDialog.Content>
     <AlertDialog.Header>
       <AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>

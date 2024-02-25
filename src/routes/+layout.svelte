@@ -9,6 +9,7 @@
   import { getFlash } from 'sveltekit-flash-message';
 
   import ThemeModeToggler from '$components/ThemeModeToggler.svelte';
+  import Logo from '$components/icons/Logo.svelte';
   import { Button } from '$components/ui/button';
   import { Toaster } from '$components/ui/sonner';
   import UserDropdownMenu from '$components/user/UserDropdownMenu.svelte';
@@ -81,11 +82,7 @@
               <div class="flex-shrink-0">
                 <a href="/">
                   <span class="sr-only">Quiz Game Homepage</span>
-                  <img
-                    class="h-8 w-8"
-                    src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                    alt="Quiz Game logo"
-                  />
+                  <Logo class="mx-auto text-indigo-600 dark:text-indigo-500" />
                 </a>
               </div>
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Users from 'lucide-svelte/icons/users';
   import { toast } from 'svelte-sonner';
   import { superForm } from 'sveltekit-superforms';
   import { valibotClient } from 'sveltekit-superforms/adapters';
@@ -8,8 +9,10 @@
   import Label from '$components/ui/label/label.svelte';
   import Switch from '$components/ui/switch/switch.svelte';
   import Textarea from '$components/ui/textarea/textarea.svelte';
+  import { Badge } from '$lib/components/ui/badge';
   import * as Dialog from '$lib/components/ui/dialog';
   import * as Form from '$lib/components/ui/form';
+  import * as HoverCard from '$lib/components/ui/hover-card';
   import * as Select from '$lib/components/ui/select';
   import {
     LobbySchema,
@@ -21,6 +24,8 @@
   import { defaultFormOptions } from '$utils/form';
 
   import type { PageData } from './$types';
+
+  import { PUBLIC_MAX_PLAYERS } from '$env/static/public';
 
   export let data: PageData;
 
@@ -78,7 +83,7 @@
         Create a game lobby
       </div></Dialog.Trigger
     >
-    <Dialog.Content>
+    <Dialog.Content class="max-h-svh overflow-y-auto">
       <Dialog.Header>
         <Dialog.Title>Create a game lobby</Dialog.Title>
         <Dialog.Description>
@@ -244,7 +249,7 @@
   novalidate
   data-sveltekit-keepfocus
 >
-  <fieldset class="flex gap-1.5 items-end">
+  <fieldset class="flex flex-wrap gap-1.5 items-end">
     <legend class="text-center">Filter</legend>
 
     <div class="grow">
@@ -272,7 +277,7 @@
       <Select.Input />
     </Select.Root>
 
-    <Button type="submit" aria-controls="lobbies-container">Filter</Button>
+    <Button type="submit" aria-controls="lobbies-container" class="h-10">Filter</Button>
   </fieldset>
 </form>
 
@@ -283,7 +288,30 @@
         <li
           class="overflow-hidden bg-white shadow sm:rounded-md hover:shadow-lg transition dark:bg-gray-800"
         >
-          <a class="block px-4 py-4 sm:px-6" href="/games/{lobby.id}">{lobby.name}</a>
+          <HoverCard.Root>
+            <HoverCard.Trigger>
+              <a
+                class="flex justify-between items-center px-4 py-4 sm:px-6"
+                href="/games/{lobby.id}"
+              >
+                <span class="flex font-semibold gap-1.5">
+                  <Users />
+                  {lobby.playerCount}/{PUBLIC_MAX_PLAYERS}
+                </span>
+                <span>{lobby.name}</span>
+                <Badge>{lobby.status}</Badge>
+              </a>
+            </HoverCard.Trigger>
+            <HoverCard.Content>
+              <div class="space-y-3">
+                {#if lobby.description}
+                  <p><span class="font-semibold">Description : </span>{lobby.description}</p>
+                {/if}
+
+                <p><span class="font-semibold">Quizz : </span>{lobby.quiz.title}</p>
+              </div>
+            </HoverCard.Content>
+          </HoverCard.Root>
         </li>
       {/each}
     </ul>
