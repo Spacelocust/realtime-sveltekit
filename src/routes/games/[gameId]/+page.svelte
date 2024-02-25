@@ -281,7 +281,11 @@
           {:else}
             <!-- Interlude view -->
             {#if currentQuestionResult}
-              <QuestionResult question={currentQuestion} results={currentQuestionResult} playerCount={players.length} />
+              <QuestionResult
+                question={currentQuestion}
+                results={currentQuestionResult}
+                playerCount={players.length}
+              />
             {:else}
               <p role="status" aria-live="polite">Waiting for the next question...</p>
             {/if}
@@ -293,9 +297,8 @@
       {:else}
         <!-- Ended view -->
         <p role="status" aria-live="polite">
-          The game has ended. You scored {players[currentPosition - 1].score} points and finished in {formatOrdinals(
-            currentPosition,
-          )} place.
+          The game has ended. You scored {players[currentPosition - 1].score} points and finished in
+          {formatOrdinals(currentPosition)} place.
         </p>
         <Button href="/games">Return to games</Button>
 
@@ -310,30 +313,6 @@
           </ul>
         </section>
       {/if}
-<<<<<<< HEAD
-    {:else}
-      <!-- Ended view -->
-      <p role="status" aria-live="polite">
-        The game has ended. You scored {players[currentPosition - 1].score} points and finished in {formatOrdinals(
-          currentPosition,
-        )} place.
-      </p>
-      <Button href="/games">Return to games</Button>
-
-      <section>
-        <h3>Your results</h3>
-
-        <ul>
-          {#each questionResults as { question, results, playerCount } (question.id)}
-            <li>
-              <QuestionResult {question} {results} {playerCount} />
-            </li>
-          {/each}
-        </ul>
-      </section>
-    {/if}
-=======
     </div>
->>>>>>> 000fe55 (WIP)
   {/if}
 </div>
