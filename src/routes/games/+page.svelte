@@ -69,144 +69,167 @@
   }
 </script>
 
-<Dialog.Root>
-  <Dialog.Trigger>Create a game lobby</Dialog.Trigger>
-  <Dialog.Content>
-    <Dialog.Header>
-      <Dialog.Title>Create a game lobby</Dialog.Title>
-      <Dialog.Description>
-        Create a new game lobby to play with friends or random people.
-      </Dialog.Description>
-    </Dialog.Header>
-
-    <form id="lobby_form" method="post" action="?/new" use:lobbyEnhance>
-      <Form.Field form={lobbyForm} name="name">
-        <Form.Control let:attrs>
-          <Form.Label>Name</Form.Label>
-          <Input {...attrs} required bind:value={$lobbyFormData.name} />
-        </Form.Control>
-        <Form.Description />
-        <Form.FieldErrors />
-      </Form.Field>
-
-      <Form.Field form={lobbyForm} name="description">
-        <Form.Control let:attrs>
-          <Form.Label>Description</Form.Label>
-          <Textarea {...attrs} rows={4} bind:value={$lobbyFormData.description} />
-        </Form.Control>
-        <Form.Description />
-        <Form.FieldErrors />
-      </Form.Field>
-
-      <Form.Field
-        form={lobbyForm}
-        name="randomizeQuestions"
-        class="flex flex-row items-center justify-between rounded-lg border p-4"
+<div class="flex items-center justify-center gap-x-6">
+  <Dialog.Root>
+    <Dialog.Trigger
+      ><div
+        class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
       >
-        <Form.Control let:attrs>
-          <div class="space-y-0.5">
-            <Form.Label>Randomize questions</Form.Label>
-            <Form.Description>Randomize the order of questions in the quiz.</Form.Description>
-            <Form.FieldErrors />
-          </div>
-          <Switch includeInput {...attrs} bind:checked={$lobbyFormData.randomizeQuestions} />
-        </Form.Control>
-      </Form.Field>
+        Create a game lobby
+      </div></Dialog.Trigger
+    >
+    <Dialog.Content>
+      <Dialog.Header>
+        <Dialog.Title>Create a game lobby</Dialog.Title>
+        <Dialog.Description>
+          Create a new game lobby to play with friends or random people.
+        </Dialog.Description>
+      </Dialog.Header>
 
-      <Form.Field
-        form={lobbyForm}
-        name="private"
-        class="flex flex-row items-center justify-between rounded-lg border p-4"
+      <form class="space-y-3" id="lobby_form" method="post" action="?/new" use:lobbyEnhance>
+        <Form.Field form={lobbyForm} name="name">
+          <Form.Control let:attrs>
+            <Form.Label>Name</Form.Label>
+            <Input {...attrs} required bind:value={$lobbyFormData.name} />
+          </Form.Control>
+          <Form.Description />
+          <Form.FieldErrors />
+        </Form.Field>
+
+        <Form.Field form={lobbyForm} name="description">
+          <Form.Control let:attrs>
+            <Form.Label>Description</Form.Label>
+            <Textarea {...attrs} rows={4} bind:value={$lobbyFormData.description} />
+          </Form.Control>
+          <Form.Description />
+          <Form.FieldErrors />
+        </Form.Field>
+
+        <Form.Field
+          form={lobbyForm}
+          name="randomizeQuestions"
+          class="flex flex-row items-center justify-between rounded-lg border p-4"
+        >
+          <Form.Control let:attrs>
+            <div class="space-y-0.5">
+              <Form.Label>Randomize questions</Form.Label>
+              <Form.Description>Randomize the order of questions in the quiz.</Form.Description>
+              <Form.FieldErrors />
+            </div>
+            <Switch includeInput {...attrs} bind:checked={$lobbyFormData.randomizeQuestions} />
+          </Form.Control>
+        </Form.Field>
+
+        <Form.Field
+          form={lobbyForm}
+          name="private"
+          class="flex flex-row items-center justify-between rounded-lg border p-4"
+        >
+          <Form.Control let:attrs>
+            <div class="space-y-0.5">
+              <Form.Label>Private</Form.Label>
+              <Form.Description>
+                Private games will not be listed publicly and can only be joined by code.
+              </Form.Description>
+              <Form.FieldErrors />
+            </div>
+            <Switch includeInput {...attrs} bind:checked={$lobbyFormData.private} />
+          </Form.Control>
+        </Form.Field>
+
+        <Form.Field form={lobbyForm} name="password">
+          <Form.Control let:attrs>
+            <Form.Label>Password</Form.Label>
+            <Input
+              {...attrs}
+              type="password"
+              autocomplete="off"
+              bind:value={$lobbyFormData.password}
+            />
+          </Form.Control>
+          <Form.Description>Define a password to restrict access to the lobby.</Form.Description>
+          <Form.FieldErrors />
+        </Form.Field>
+
+        <Form.Field form={lobbyForm} name="quizId">
+          <Form.Control let:attrs>
+            <Form.Label>Quiz</Form.Label>
+            <Select.Root
+              selected={selectedQuiz}
+              onSelectedChange={(quiz) => {
+                if (quiz) {
+                  $lobbyFormData.quizId = quiz.value;
+                }
+              }}
+            >
+              <Select.Trigger {...attrs}>
+                <Select.Value placeholder="Select the quiz to use for this lobby." />
+              </Select.Trigger>
+              <Select.Content>
+                {#each formattedQuizzes as quiz (quiz.value)}
+                  <Select.Item value={quiz.value} label={quiz.label} />
+                {/each}
+              </Select.Content>
+            </Select.Root>
+            <input hidden bind:value={$lobbyFormData.quizId} name={attrs.name} />
+          </Form.Control>
+          <Form.Description />
+          <Form.FieldErrors />
+        </Form.Field>
+      </form>
+
+      <Dialog.Footer>
+        <Button form="lobby_form" disabled={$lobbyDelayed} type="submit">Create</Button>
+      </Dialog.Footer>
+    </Dialog.Content>
+  </Dialog.Root>
+
+  <Dialog.Root>
+    <Dialog.Trigger
+      ><div class="text-sm font-semibold leading-6">
+        Join a game by code <span aria-hidden="true">→</span>
+      </div></Dialog.Trigger
+    >
+    <Dialog.Content>
+      <Dialog.Header>
+        <Dialog.Title>Join a game by code</Dialog.Title>
+        <Dialog.Description>Enter the code of the lobby you want to join.</Dialog.Description>
+      </Dialog.Header>
+
+      <form
+        class="space-y-3"
+        id="lobby-code_form"
+        method="post"
+        action="?/joinByCode"
+        use:lobbyCodeEnhance
       >
-        <Form.Control let:attrs>
-          <div class="space-y-0.5">
-            <Form.Label>Private</Form.Label>
-            <Form.Description>
-              Private games will not be listed publicly and can only be joined by code.
-            </Form.Description>
-            <Form.FieldErrors />
-          </div>
-          <Switch includeInput {...attrs} bind:checked={$lobbyFormData.private} />
-        </Form.Control>
-      </Form.Field>
+        <Form.Field form={lobbyCodeForm} name="code">
+          <Form.Control let:attrs>
+            <Form.Label>Code</Form.Label>
+            <Input {...attrs} required bind:value={$lobbyCodeFormData.code} />
+          </Form.Control>
+          <Form.Description />
+          <Form.FieldErrors />
+        </Form.Field>
+      </form>
 
-      <Form.Field form={lobbyForm} name="password">
-        <Form.Control let:attrs>
-          <Form.Label>Password</Form.Label>
-          <Input
-            {...attrs}
-            type="password"
-            autocomplete="off"
-            bind:value={$lobbyFormData.password}
-          />
-        </Form.Control>
-        <Form.Description>Define a password to restrict access to the lobby.</Form.Description>
-        <Form.FieldErrors />
-      </Form.Field>
+      <Dialog.Footer>
+        <Button form="lobby-code_form" disabled={$lobbyCodeDelayed} type="submit">Join</Button>
+      </Dialog.Footer>
+    </Dialog.Content>
+  </Dialog.Root>
+</div>
 
-      <Form.Field form={lobbyForm} name="quizId">
-        <Form.Control let:attrs>
-          <Form.Label>Quiz</Form.Label>
-          <Select.Root
-            selected={selectedQuiz}
-            onSelectedChange={(quiz) => {
-              if (quiz) {
-                $lobbyFormData.quizId = quiz.value;
-              }
-            }}
-          >
-            <Select.Trigger {...attrs}>
-              <Select.Value placeholder="Select the quiz to use for this lobby." />
-            </Select.Trigger>
-            <Select.Content>
-              {#each formattedQuizzes as quiz (quiz.value)}
-                <Select.Item value={quiz.value} label={quiz.label} />
-              {/each}
-            </Select.Content>
-          </Select.Root>
-          <input hidden bind:value={$lobbyFormData.quizId} name={attrs.name} />
-        </Form.Control>
-        <Form.Description />
-        <Form.FieldErrors />
-      </Form.Field>
-    </form>
+<form
+  class="border-t border-gray-200 mt-6 py-6 dark:border-gray-800"
+  method="get"
+  novalidate
+  data-sveltekit-keepfocus
+>
+  <fieldset class="flex gap-1.5 items-end">
+    <legend class="text-center">Filter</legend>
 
-    <Dialog.Footer>
-      <Button form="lobby_form" disabled={$lobbyDelayed} type="submit">Create</Button>
-    </Dialog.Footer>
-  </Dialog.Content>
-</Dialog.Root>
-
-<Dialog.Root>
-  <Dialog.Trigger>Join a game by code</Dialog.Trigger>
-  <Dialog.Content>
-    <Dialog.Header>
-      <Dialog.Title>Join a game by code</Dialog.Title>
-      <Dialog.Description>Enter the code of the lobby you want to join.</Dialog.Description>
-    </Dialog.Header>
-
-    <form id="lobby-code_form" method="post" action="?/joinByCode" use:lobbyCodeEnhance>
-      <Form.Field form={lobbyCodeForm} name="code">
-        <Form.Control let:attrs>
-          <Form.Label>Code</Form.Label>
-          <Input {...attrs} required bind:value={$lobbyCodeFormData.code} />
-        </Form.Control>
-        <Form.Description />
-        <Form.FieldErrors />
-      </Form.Field>
-    </form>
-
-    <Dialog.Footer>
-      <Button form="lobby-code_form" disabled={$lobbyCodeDelayed} type="submit">Join</Button>
-    </Dialog.Footer>
-  </Dialog.Content>
-</Dialog.Root>
-
-<form method="get" novalidate data-sveltekit-keepfocus>
-  <fieldset>
-    <legend>Filter</legend>
-
-    <div class="grid w-full max-w-sm items-center gap-1.5">
+    <div class="grow">
       <Label for="filter-name">Name</Label>
       <Input name="name" type="text" id="filter-name" />
     </div>
@@ -230,17 +253,17 @@
       </Select.Content>
       <Select.Input />
     </Select.Root>
-  </fieldset>
 
-  <Button type="submit" aria-controls="lobbies-container">Filter</Button>
+    <Button type="submit" aria-controls="lobbies-container">Filter</Button>
+  </fieldset>
 </form>
 
 <div id="lobbies-container" aria-atomic="true" aria-live="polite">
   {#if data.lobbies.length > 0}
-    <ul>
+    <ul class="space-y-3">
       {#each data.lobbies as lobby}
-        <li>
-          <a href="/games/{lobby.id}">{lobby.name}</a>
+        <li class="overflow-hidden bg-white shadow sm:rounded-md hover:shadow-lg transition dark:bg-gray-800">
+          <a class="block px-4 py-4 sm:px-6" href="/games/{lobby.id}">{lobby.name}</a>
         </li>
       {/each}
     </ul>
