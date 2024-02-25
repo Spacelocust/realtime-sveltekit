@@ -262,7 +262,9 @@
   {#if data.lobbies.length > 0}
     <ul class="space-y-3">
       {#each data.lobbies as lobby}
-        <li class="overflow-hidden bg-white shadow sm:rounded-md hover:shadow-lg transition dark:bg-gray-800">
+        <li
+          class="overflow-hidden bg-white shadow sm:rounded-md hover:shadow-lg transition dark:bg-gray-800"
+        >
           <a class="block px-4 py-4 sm:px-6" href="/games/{lobby.id}">{lobby.name}</a>
         </li>
       {/each}

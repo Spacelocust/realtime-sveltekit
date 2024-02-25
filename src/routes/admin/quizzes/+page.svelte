@@ -17,7 +17,9 @@
 {#if data.quizzes.length}
   <ul role="list" class="mt-3 space-y-3">
     {#each data.quizzes as quiz (quiz.id)}
-      <li class="overflow-hidden bg-white shadow sm:rounded-md hover:shadow-lg transition dark:bg-gray-800">
+      <li
+        class="overflow-hidden bg-white shadow sm:rounded-md hover:shadow-lg transition dark:bg-gray-800"
+      >
         <a class="block px-4 py-4 sm:px-6" href="/admin/quizzes/{quiz.id}/edit">{quiz.title}</a>
       </li>
     {/each}
