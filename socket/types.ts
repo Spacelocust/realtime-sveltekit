@@ -54,6 +54,7 @@ export type LobbyState = {
   owner: string;
   status: GameStatus;
   password: string | null;
+  isSingleAnswer: boolean;
   maxPlayers: number;
   players: Player[];
   game: Game;
