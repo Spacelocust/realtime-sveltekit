@@ -1,10 +1,18 @@
 import { relations } from 'drizzle-orm';
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from 'drizzle-orm/mysql-core';
+import {
+  boolean,
+  int,
+  mysqlEnum,
+  mysqlTable,
+  text,
+  timestamp,
+  varchar,
+} from 'drizzle-orm/mysql-core';
 
 import { quizzes } from './quizzes';
 import { users } from './users';
 
-import { GameStatus } from '../enums/lobby';
+import { GameStatus } from '../../src/shared/enums/lobby';
 
 export const lobbies = mysqlTable('lobbies', {
   id: varchar('id', {
@@ -20,6 +28,8 @@ export const lobbies = mysqlTable('lobbies', {
   code: varchar('code', {
     length: 30,
   }).notNull(),
+  private: boolean('private').default(false).notNull(),
+  randomizeQuestions: boolean('randomize_questions').default(false).notNull(),
   status: mysqlEnum('status', [GameStatus.Waiting, GameStatus.InProgress, GameStatus.Finished])
     .default(GameStatus.Waiting)
     .notNull(),

@@ -43,6 +43,13 @@
       "when": 1708859558191,
       "tag": "0005_violet_lady_ursula",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1708868620200,
+      "tag": "0006_broken_santa_claus",
+      "breakpoints": true
     }
   ]
 }

@@ -25,7 +25,10 @@
   let isMobileMenuOpen = false;
   let links: { name: string; href: string; current: boolean }[] = [];
 
-  $: links = [{ name: 'Home', href: '/', current: $page.route.id === '/' }];
+  $: links = [
+    { name: 'Home', href: '/', current: $page.route.id === '/' },
+    { name: 'Game lobbies', href: '/games', current: $page.route.id === '/games' },
+  ];
 
   $: if ($flash) {
     toast[$flash.type]($flash.message);

@@ -11,7 +11,7 @@ import {
   type Input,
 } from 'valibot';
 
-import { Difficulty } from '$lib/enums/quizzes';
+import { Difficulty } from '$shared/enums/quizzes';
 
 import { QuestionSchema } from './question';
 

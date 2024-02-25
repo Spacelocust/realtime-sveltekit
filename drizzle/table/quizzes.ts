@@ -4,7 +4,7 @@ import { mysqlEnum, mysqlTable, text, timestamp, varchar } from 'drizzle-orm/mys
 import { lobbies } from './lobbies';
 import { questions } from './questions';
 
-import { Difficulty } from '../enums/quizzes';
+import { Difficulty } from '../../src/shared/enums/quizzes';
 
 export const quizzes = mysqlTable('quizzes', {
   id: varchar('id', {

@@ -3,7 +3,7 @@
 
   import Button from '$components/ui/button/button.svelte';
   import * as DropdownMenu from '$components/ui/dropdown-menu';
-  import { Role } from '$lib/enums/user';
+  import { Role } from '$shared/enums/user';
 
   import type { User as UserType } from 'lucia';
 
