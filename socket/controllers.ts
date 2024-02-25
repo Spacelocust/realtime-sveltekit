@@ -1,21 +1,13 @@
+import { eq, sql } from 'drizzle-orm';
+
 import { LobbyState, QuestionWithoutAnswer } from './types';
 
 import { db } from '../drizzle/db';
+import { lobbies } from '../drizzle/table/lobbies';
 import { Question } from '../drizzle/table/questions';
 import { GameStatus } from '../src/shared/enums/lobby';
 
 const { PUBLIC_MAX_PLAYERS, PUBLIC_ANSWER_TIME, PUBLIC_INTERLUDE_TIME } = process.env;
-
-export const join = () => {};
-export const leave = () => {};
-export const answer = () => {};
-
-export const sendQuestion = () => {};
-export const sendAnswerTimer = () => {};
-export const sendInterludeTimer = () => {};
-export const sendQuestionResult = () => {};
-export const sendScoreboard = () => {};
-export const sendLobbyStatus = () => {};
 
 const formatQuestion = (question: Question): QuestionWithoutAnswer => {
   return {
@@ -28,21 +20,36 @@ const formatQuestion = (question: Question): QuestionWithoutAnswer => {
   };
 };
 
-export const getLobby = async (lobbyId: string) => {
-  return db.query.lobbies.findFirst({
-    where: (lobby, { eq }) => eq(lobby.id, lobbyId),
-    with: {
-      quiz: {
-        with: {
-          questions: true,
-        },
-      },
-    },
-  });
+export const createCurrentQuestion = (question: Question) => {
+  return {
+    timeLeft: PUBLIC_ANSWER_TIME ? parseInt(PUBLIC_ANSWER_TIME, 10) : 30,
+    question: formatQuestion(question),
+    countPerAnswer: {},
+    correctAnswers: question.choices.reduce<string[]>(
+      (acc, curr) => (curr.isCorrect ? [...acc, curr.id] : acc),
+      [],
+    ),
+  };
 };
 
-export const createLobby = async (lobbyId: string): Promise<LobbyState> => {
-  const lobby = await getLobby(lobbyId);
+export const getLobby = async (id: string) => {
+  return db.query.lobbies
+    .findFirst({
+      where: (lobby) => eq(lobby.id, sql.placeholder('id')),
+      with: {
+        quiz: {
+          with: {
+            questions: true,
+          },
+        },
+      },
+    })
+    .prepare()
+    .execute({ id });
+};
+
+export const createLobby = async (id: string): Promise<LobbyState> => {
+  const lobby = await getLobby(id);
   if (!lobby) {
     throw new Error('Lobby not found');
   }
@@ -65,15 +72,22 @@ export const createLobby = async (lobbyId: string): Promise<LobbyState> => {
     owner: lobby.createdById,
     maxPlayers: PUBLIC_MAX_PLAYERS ? parseInt(PUBLIC_MAX_PLAYERS, 10) : 8,
     players: [],
+    playerSockets: {},
+    playerCurrentAnswers: {},
     game: {
       quiz: lobby.quiz,
       timeInterludeLeft: PUBLIC_INTERLUDE_TIME ? parseInt(PUBLIC_INTERLUDE_TIME, 10) : 10,
-      scoreboard: [],
       questionsLeft,
-      currentQuestion: {
-        timeLeft: PUBLIC_ANSWER_TIME ? parseInt(PUBLIC_ANSWER_TIME, 10) : 30,
-        question: formatQuestion(firstQuestion),
-      },
+      currentQuestion: createCurrentQuestion(firstQuestion),
     },
   };
+};
+
+export const updateStatusLobby = async (id: string, status: GameStatus) => {
+  await db
+    .update(lobbies)
+    .set({ status })
+    .where(eq(lobbies.id, sql.placeholder('id')))
+    .prepare()
+    .execute({ id });
 };
