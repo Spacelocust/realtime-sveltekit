@@ -1,6 +1,7 @@
 import { relations } from 'drizzle-orm';
 import { mysqlEnum, mysqlTable, text, timestamp, varchar } from 'drizzle-orm/mysql-core';
 
+import { lobbies } from './lobbies';
 import { questions } from './questions';
 
 import { Difficulty } from '../enums/quizzes';
@@ -27,6 +28,7 @@ export const quizzes = mysqlTable('quizzes', {
 
 export const quizzesRelations = relations(quizzes, ({ many }) => ({
   questions: many(questions),
+  lobbies: many(lobbies),
 }));
 
 export type Quiz = typeof quizzes.$inferSelect;
