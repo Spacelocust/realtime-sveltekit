@@ -295,24 +295,58 @@ io.on('connection', (socket) => {
       }
     });
 
+    if (choices.every((choice) => lobby.game.currentQuestion.correctAnswers.includes(choice))) {
+      lobbies[lobbyId].players = lobbies[lobbyId].players.map((player) => {
+        if (player.id === socket.data.user?.id) {
+          return {
+            ...player,
+            score: player.score + 1,
+          };
+        }
+
+        return player;
+      });
+    }
+
     emitMessage('Answer received');
     socket.emit('answered', true);
   });
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', async () => {
     const { lobbyId } = socket.data;
 
     if (lobbyId) {
       if (lobbies[lobbyId]) {
+        console.log('disconnect', socket.data.user?.username);
+        if (
+          socket.data.user?.id === lobbies[lobbyId].owner &&
+          lobbies[lobbyId].status === GameStatus.Waiting
+        ) {
+          io.to(lobbyId).emit('message', {
+            type: MessageType.Message,
+            content: `The game has been canceled. the host ${socket.data.user?.username} left the game!`,
+          });
+          await updateStatusLobby(lobbyId, GameStatus.Finished);
+          delete lobbies[lobbyId];
+
+          io.in(lobbyId).disconnectSockets();
+          return;
+        }
+
         lobbies[lobbyId].players = lobbies[lobbyId].players.filter(
           (player) => player.id !== socket.data.user?.id,
         );
+
         io.to(lobbyId).emit('players', lobbies[lobbyId].players);
 
         io.to(lobbyId).emit('message', {
           type: MessageType.Message,
           content: `${socket.data.user?.username} left the game!`,
         });
+
+        if (lobbies[lobbyId].players.length <= 0) {
+          delete lobbies[lobbyId];
+        }
       }
     }
   });
