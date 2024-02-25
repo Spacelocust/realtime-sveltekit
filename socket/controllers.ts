@@ -1,8 +1,10 @@
 import { get } from 'http';
 
-import { Game, GameStatus } from './types';
+import { Game, LobbyState, QuestionWithoutAnswer } from './types';
 
 import { db } from '../drizzle/db';
+import { GameStatus } from '../drizzle/enums/lobby';
+import { Question } from '../drizzle/table/questions';
 
 export const join = () => {};
 export const leave = () => {};
@@ -18,39 +20,63 @@ const time = {
   interlude: 5,
 };
 
-export const getLobby = async (lobbyId: string) => {};
+// TODO: Replace by Env variable
+const maxPlayers = 4;
 
-// TODO: improve when lobby is implemented
-// export const createGame = async (quizId: string): Promise<Game> => {
-//   const lo
+const formatQuestion = (question: Question): QuestionWithoutAnswer => {
+  return {
+    ...question,
+    isMultipleChoice: question.choices.filter((choice) => choice.isCorrect).length > 1,
+    choices: question.choices.map((choice) => {
+      const { isCorrect, ...rest } = choice;
+      return rest;
+    }),
+  };
+};
 
-//   if (!quiz) {
-//     throw new Error('Quiz not found');
-//   }
+export const getLobby = async (lobbyId: string) => {
+  return db.query.lobbies.findFirst({
+    where: (lobby, { eq }) => eq(lobby.id, lobbyId),
+    with: {
+      quiz: {
+        with: {
+          questions: true,
+        },
+      },
+    },
+  });
+};
 
-//   const questionsLeft = quiz.questions.map((q) => q.id);
-
-//   const currentQuestion = await getQuestion(quizId, questionsLeft);
-
-//   if (!currentQuestion) {
-//     throw new Error('No question found');
-//   }
-
-//   return {
-//     quiz,
-//     status: GameStatus.Waiting,
-//     scoreboard: {},
-//     questionsLeft: questionsLeft.filter((q) => q !== currentQuestion.id),
-//     currentQuestion: {
-//       timeLeft: time.question,
-//       question: currentQuestion,
-//     },
-//   };
-// };
-
-export const createLobby = async (lobbyId: string) => {
-  // TODO: implement lobby request
+export const createLobby = async (lobbyId: string): Promise<LobbyState> => {
   const lobby = await getLobby(lobbyId);
-  
-  return {};
+  if (!lobby) {
+    throw new Error('Lobby not found');
+  }
+
+  // TODO: add shuffle fonctionnality
+  const firstQuestion = lobby.quiz.questions.shift();
+  if (!firstQuestion) {
+    throw new Error('No question found');
+  }
+
+  const questionsLeft = lobby.quiz.questions.map((q) => q.id);
+
+  return {
+    id: lobby.id,
+    status: GameStatus.Waiting,
+    password: lobby.password,
+    owner: lobby.createdById,
+    maxPlayers,
+    players: [],
+    game: {
+      quiz: lobby.quiz,
+      timeInterludeLeft: time.interlude,
+      scoreboard: {},
+      questionsLeft,
+      currentQuestion: {
+        timeLeft: time.question,
+        question: formatQuestion(firstQuestion),
+      },
+    },
+  };
 };
