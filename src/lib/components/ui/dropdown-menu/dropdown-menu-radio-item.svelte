@@ -1,6 +1,6 @@
 <script lang="ts">
   import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
-  import { Dot } from 'lucide-svelte';
+  import Dot from 'lucide-svelte/icons/dot';
 
   import { cn } from '$lib/utils';
 

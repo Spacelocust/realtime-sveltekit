@@ -1,7 +1,8 @@
 <script lang="ts">
   import '../app.pcss';
 
-  import { Menu, X } from 'lucide-svelte';
+  import Menu from 'lucide-svelte/icons/menu';
+  import X from 'lucide-svelte/icons/x';
   import { ModeWatcher } from 'mode-watcher';
   import { fade, scale } from 'svelte/transition';
   import { toast } from 'svelte-sonner';

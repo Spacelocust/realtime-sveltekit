@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { Check, X } from 'lucide-svelte';
+  import Check from 'lucide-svelte/icons/check';
+  import X from 'lucide-svelte/icons/x';
 
   import Progress from '$components/ui/progress/progress.svelte';
   import * as Card from '$lib/components/ui/card';

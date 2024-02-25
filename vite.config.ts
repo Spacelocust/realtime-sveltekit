@@ -23,4 +23,7 @@ export default defineConfig({
       ],
     },
   },
+  optimizeDeps: {
+    holdUntilCrawlEnd: true,
+  },
 });
