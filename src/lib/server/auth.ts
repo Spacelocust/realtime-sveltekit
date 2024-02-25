@@ -13,6 +13,7 @@ export const auth = new Lucia(adapter, {
   getUserAttributes: (data) => {
     return {
       username: data.username,
+      role: data.role,
     };
   },
 });

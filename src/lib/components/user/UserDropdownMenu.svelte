@@ -3,6 +3,7 @@
 
   import Button from '$components/ui/button/button.svelte';
   import * as DropdownMenu from '$components/ui/dropdown-menu';
+  import { Role } from '$lib/enums/user';
 
   import type { User as UserType } from 'lucia';
 
@@ -25,6 +26,15 @@
       {#if user}
         <DropdownMenu.Label>Logged in as {user.username}</DropdownMenu.Label>
         <DropdownMenu.Separator />
+        {#if user.role === Role.Admin}
+          <DropdownMenu.Label>Admin</DropdownMenu.Label>
+          <DropdownMenu.Group>
+            <DropdownMenu.Item>
+              <a href="/admin/quizzes" class="w-full">Quizzes</a>
+            </DropdownMenu.Item>
+            <DropdownMenu.Separator />
+          </DropdownMenu.Group>
+        {/if}
         <DropdownMenu.Item>
           <form method="post" action="/?/logout" use:enhance>
             <button type="submit">Logout</button>

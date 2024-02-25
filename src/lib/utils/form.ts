@@ -13,6 +13,8 @@ export const defaultFormOptions: FormOptions = {
       } else {
         toast.error('The form is invalid. Please check the fields and try again.');
       }
+    } else if (typeof updatedForm.message === 'string') {
+      toast.success(updatedForm.message);
     }
   },
   delayMs: 300,

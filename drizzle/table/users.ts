@@ -1,9 +1,6 @@
 import { mysqlEnum, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 
-export enum Role {
-  User = 'user',
-  Admin = 'admin',
-}
+import { Role } from '../enums/user';
 
 export const users = mysqlTable('users', {
   id: varchar('id', {

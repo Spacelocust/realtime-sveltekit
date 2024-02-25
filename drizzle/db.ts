@@ -7,9 +7,9 @@ import { quizzes, quizzesRelations } from './table/quizzes';
 import { sessions } from './table/sessions';
 import { users } from './table/users';
 
-const { MARIADB_URL } = process.env;
+const { MYSQL_URL } = process.env;
 
-export const connection = await mysql.createConnection(MARIADB_URL ?? '');
+export const connection = await mysql.createConnection(MYSQL_URL ?? '');
 
 export const db = drizzle(connection, {
   schema: {
