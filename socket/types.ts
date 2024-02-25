@@ -18,8 +18,8 @@ export type Player = {
 };
 
 export type Timers = {
-  answer: Record<string, Timer>;
-  interlude: Record<string, Timer>;
+  answer: Record<string, Timer | undefined>;
+  interlude: Record<string, Timer | undefined>;
 };
 
 // The current question being asked

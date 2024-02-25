@@ -20,6 +20,8 @@ import type {
   Timers,
 } from './types';
 
+const { PUBLIC_INTERLUDE_TIME } = process.env;
+
 const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>();
 
 io.use(isAuth);
@@ -47,6 +49,7 @@ const createAnswerTimer = (socket: SocketServer) => {
         // Clear the answer timer
         if (timers.answer[socket.data.lobbyId]) {
           clearInterval(timers.answer[socket.data.lobbyId]);
+          timers.answer[socket.data.lobbyId] = undefined;
         }
 
         // Send the result of the question for each player
@@ -60,8 +63,14 @@ const createAnswerTimer = (socket: SocketServer) => {
           });
         });
 
+        // Emit the players scores to the lobby
+        io.to(socket.data.lobbyId).emit('players', lobby.players);
+
+        lobbies[socket.data.lobbyId].playerCurrentAnswers = {};
+
         // Launch the interlude timer
         if (!timers.interlude[socket.data.lobbyId]) {
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
           timers.interlude[socket.data.lobbyId] = createInterludeTimer(socket);
         }
       }
@@ -85,6 +94,10 @@ const createInterludeTimer = (socket: SocketServer) => {
         // Clear the interlude timer
         if (timers.interlude[socket.data.lobbyId]) {
           clearInterval(timers.interlude[socket.data.lobbyId]);
+          timers.interlude[socket.data.lobbyId] = undefined;
+          lobbies[socket.data.lobbyId].game.timeInterludeLeft = PUBLIC_INTERLUDE_TIME
+            ? parseInt(PUBLIC_INTERLUDE_TIME, 10)
+            : 10;
         }
 
         // Get next question id and remove it from the list
@@ -121,6 +134,8 @@ const createInterludeTimer = (socket: SocketServer) => {
           // Emit the lobby status to the lobby
           io.to(socket.data.lobbyId).emit('lobbyStatus', GameStatus.Finished);
           io.to(socket.data.lobbyId).emit('players', lobbies[socket.data.lobbyId].players);
+
+          delete lobbies[socket.data.lobbyId];
         }
       }
     }
@@ -183,7 +198,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('start', () => {
+  socket.on('start', async () => {
     const { lobbyId } = socket.data;
 
     if (!lobbyId) {
@@ -214,7 +229,9 @@ io.on('connection', (socket) => {
 
     lobbies[lobbyId].status = GameStatus.InProgress;
 
-    io.to(socket.data.lobbyId).emit('lobbyStatus', GameStatus.InProgress);
+    io.to(lobbyId).emit('lobbyStatus', GameStatus.InProgress);
+    await updateStatusLobby(lobbyId, GameStatus.InProgress);
+    io.to(lobbyId).emit('question', lobby.game.currentQuestion.question);
 
     io.to(lobbyId).emit('message', {
       type: MessageType.Message,
@@ -222,7 +239,7 @@ io.on('connection', (socket) => {
     });
 
     if (!timers.answer[lobbyId]) {
-      createAnswerTimer(socket);
+      timers.answer[lobbyId] = createAnswerTimer(socket);
     }
   });
 
@@ -260,7 +277,10 @@ io.on('connection', (socket) => {
       return;
     }
 
-    if (lobby.playerCurrentAnswers[socket.data.user?.id].length > 0) {
+    if (
+      lobby.playerCurrentAnswers[socket.data.user?.id] &&
+      lobby.playerCurrentAnswers[socket.data.user?.id].length > 0
+    ) {
       emitError('You already answered this question');
       return;
     }
