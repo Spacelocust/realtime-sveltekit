@@ -3,22 +3,23 @@
 import { Server } from 'socket.io';
 
 import { isAuth } from './middleware';
-import {
-  LobbiesState,
-  type ClientToServerEvents,
-  type InterServerEvents,
-  type ServerToClientEvents,
-  type SocketData,
-} from './types';
 
 import { GameStatus } from '../src/shared/enums/lobby';
 import { MessageType } from '../src/shared/enums/socket';
+
+import type {
+  LobbyStates,
+  ClientToServerEvents,
+  InterServerEvents,
+  ServerToClientEvents,
+  SocketData,
+} from './types';
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>();
 
 io.use(isAuth);
 
-const lobbies: LobbiesState = {};
+const lobbies: LobbyStates = {};
 
 io.on('connection', (socket) => {
   socket.on('join', (lobbyId, password) => {
