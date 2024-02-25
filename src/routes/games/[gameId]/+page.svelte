@@ -2,14 +2,14 @@
   import { io } from 'socket.io-client';
   import { onDestroy, onMount } from 'svelte';
 
-  import type { PageData } from './$types';
   import type { Socket } from '$types/socket';
+  import type { PageData } from './$types';
 
   import { PUBLIC_HOST } from '$env/static/public';
 
   export let data: PageData;
 
-  let socket: Socket;
+  let socket: Socket | null = null;
 
   onMount(() => {
     socket = io(PUBLIC_HOST);

@@ -1,7 +1,7 @@
 import { Lucia } from 'lucia';
 
 import { adapter } from '../drizzle/db';
-import { Role } from '../drizzle/enums/user';
+import { Role } from '../src/shared/enums/user';
 
 const { NODE_ENV } = process.env;
 

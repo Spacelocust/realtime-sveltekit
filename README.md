@@ -8,6 +8,8 @@ Real-time project for ESGI with SvelteKit.
   - [Content](#content)
   - [Launch the project](#launch-the-project)
   - [Accounts](#accounts)
+  - [Create a quiz](#create-a-quiz)
+  - [Game lobbies](#game-lobbies)
   - [Libraries](#libraries)
   - [Services](#services)
   - [Makefile commands](#makefile-commands)
@@ -22,6 +24,9 @@ You can then stop and relaunch the project using the `make stop` and `make up` c
 You can view the project on [http://localhost:5173](http://localhost:5173).
 The database UI is available on [http://localhost:8080](http://localhost:8080).
 
+> [!IMPORTANT]  
+> There is currently a bug with Vite taking a long time to optimize dependencies. Upon the first launch, it can take a few minutes for the website to respond. If the logs (`make logs-app`) show that Vite is optimizing dependencies, please wait for it to finish.
+
 ## Accounts
 
 Users available after running the `make db-fixtures` command.
@@ -33,6 +38,19 @@ Users available after running the `make db-fixtures` command.
 | `shade`    | `xxx`    | `admin` |
 | `karl`     | `xxx`    | `user`  |
 | `caddyman` | `xxx`    | `user`  |
+
+You can also create one using the registration form, but they will not have the `admin` role.
+
+## Create a quiz
+
+Only users with the `admin` role can create quizzes. A new "quizzes" link will appear in the user dropdown menu.
+
+> [!NOTE]  
+> There is currently a bug with [Formsnap](https://github.com/svecosystem/formsnap) where nested errors in a form are not displayed. If a toast message appears and says that the form is invalid but no error is displayed on the form, you can add a `console.error(updatedForm.errors)` [here](https://github.com/Spacelocust/realtime-sveltekit/blob/main/src/lib/utils/form.ts#L11) to see the errors in the console.
+
+## Game lobbies
+
+Game lobbies are available for any logged in user.
 
 ## Libraries
 

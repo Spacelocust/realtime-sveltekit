@@ -48,6 +48,9 @@ export const load = (async ({ locals, url }) => {
               ? eq(lobbies.quizId, sql.placeholder('quizId'))
               : undefined,
           ),
+        with: {
+          quiz: true,
+        },
       })
       .prepare()
       .execute({

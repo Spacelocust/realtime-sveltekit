@@ -53,7 +53,7 @@ export type LobbyState = {
   game: Game;
 };
 
-export type LobbiesState = Record<string, LobbyState>; // [id]: Lobby
+export type LobbyStates = Record<string, LobbyState>; // [id]: Lobby
 
 export interface ServerToClientEvents {
   message: (message: { type: MessageType; content: string }) => void;
