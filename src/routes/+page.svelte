@@ -1,1 +1,5 @@
-<p>Welcome to the quiz game !</p>
+<script lang="ts">
+  import Animation from '$components/Animation.svelte';
+</script>
+
+<Animation />

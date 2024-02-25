@@ -175,6 +175,14 @@
         <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
           All the questions in the quizz.
         </p>
+
+        {#if questionErrors.length > 0}
+          <ul class="text-sm font-medium text-red-500" role="alert">
+            {#each questionErrors as error}
+              <li>{error}</li>
+            {/each}
+          </ul>
+        {/if}
       </div>
       <div
         class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2 dark:bg-gray-900 dark:ring-white/10"
@@ -185,14 +193,6 @@
           class="grid gap-y-8 px-4 py-6 sm:p-8"
           id="quiz-form_questions"
         >
-          {#if questionErrors.length > 0}
-            <ul class="text-sm font-medium text-red-500" role="alert">
-              {#each questionErrors as error}
-                <li>{error}</li>
-              {/each}
-            </ul>
-          {/if}
-
           {#if $formData.questions.length}
             <ul class="contents">
               {#each $formData.questions as question, questionIndex}
@@ -256,21 +256,20 @@
                         </Form.Field>
                       </div>
                     </div>
-
-                    {#if questionChoicesErrors.length > 0}
-                      <ul class="text-sm font-medium text-red-500" role="alert">
-                        {#each questionChoicesErrors as error}
-                          <li>{error}</li>
-                        {/each}
-                      </ul>
-                    {/if}
-
                     <fieldset
                       aria-atomic="false"
                       aria-live="polite"
                       id={questionChoicesContainerId}
                     >
                       <legend class:text-red-500={questionChoicesErrors.length > 0}>Choices</legend>
+
+                      {#if questionChoicesErrors.length > 0}
+                        <ul class="text-sm font-medium text-red-500" role="alert">
+                          {#each questionChoicesErrors as error}
+                            <li>{error}</li>
+                          {/each}
+                        </ul>
+                      {/if}
 
                       {#if question.choices.length}
                         <ul class="grid gap-y-8 px-4 py-6 sm:p-8">
