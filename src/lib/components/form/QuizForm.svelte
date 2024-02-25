@@ -201,44 +201,7 @@
                   $errors.questions?.[questionIndex]?.choices?._errors ?? []}
 
                 <li>
-<<<<<<< HEAD
-                  <Form.Field {form} name="questions[{questionIndex}].choices[{choiceIndex}].label">
-                    <Form.Control let:attrs>
-                      <Form.Label>Choice {choiceIndex + 1}</Form.Label>
-                      <Input
-                        {...attrs}
-                        required
-                        bind:value={$formData.questions[questionIndex].choices[choiceIndex].label}
-                      />
-                    </Form.Control>
-                    <Form.Description />
-                    <Form.FieldErrors />
-                  </Form.Field>
-
-                  <Form.Field
-                    {form}
-                    name="questions[{questionIndex}].choices[{choiceIndex}].isCorrect"
-                    class="flex flex-row items-center justify-between rounded-lg border p-4"
-                  >
-                    <Form.Control let:attrs>
-                      <div class="space-y-0.5">
-                        <Form.Label>Is correct?</Form.Label>
-                        <Form.Description />
-                        <Form.FieldErrors />
-                      </div>
-                      <Switch
-                        includeInput
-                        {...attrs}
-                        bind:checked={$formData.questions[questionIndex].choices[choiceIndex]
-                          .isCorrect}
-                      />
-                    </Form.Control>
-                  </Form.Field>
-
-                  {#if $formData.questions[questionIndex].choices[choiceIndex].id}
-=======
                   {#if $formData.questions[questionIndex].id}
->>>>>>> 7b622e2 (Feat : New quizz front)
                     <input
                       hidden
                       bind:value={$formData.questions[questionIndex].id}
