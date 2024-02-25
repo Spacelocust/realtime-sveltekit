@@ -1,9 +1,6 @@
 <script lang="ts">
-<<<<<<< HEAD
   import { toast } from 'svelte-sonner';
-=======
   import { Plus, Trash2 } from 'lucide-svelte';
->>>>>>> 7b622e2 (Feat : New quizz front)
   import { type SuperValidated, superForm } from 'sveltekit-superforms';
   import { valibotClient } from 'sveltekit-superforms/adapters';
 
