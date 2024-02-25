@@ -61,8 +61,8 @@ const createAnswerTimer = (socket: SocketServer) => {
         });
 
         // Launch the interlude timer
-        if (timers.interlude[socket.data.lobbyId]) {
-          createInterludeTimer(socket);
+        if (!timers.interlude[socket.data.lobbyId]) {
+          timers.interlude[socket.data.lobbyId] = createInterludeTimer(socket);
         }
       }
     }
