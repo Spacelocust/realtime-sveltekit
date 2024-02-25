@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
   import { Plus, Trash2 } from 'lucide-svelte';
+  import { toast } from 'svelte-sonner';
   import { type SuperValidated, superForm } from 'sveltekit-superforms';
   import { valibotClient } from 'sveltekit-superforms/adapters';
 
@@ -168,7 +168,7 @@
       <div class="px-4 sm:px-0">
         <h2
           class="text-base font-semibold leading-7"
-          class:text-destructive={questionErrors.length > 0}
+          class:text-red-500={questionErrors.length > 0}
         >
           Questions
         </h2>
@@ -186,7 +186,7 @@
           id="quiz-form_questions"
         >
           {#if questionErrors.length > 0}
-            <ul class="text-sm font-medium text-destructive" role="alert">
+            <ul class="text-sm font-medium text-red-500" role="alert">
               {#each questionErrors as error}
                 <li>{error}</li>
               {/each}
@@ -257,24 +257,22 @@
                       </div>
                     </div>
 
-                    {#if question.choices.length}
-                      <fieldset
-                        aria-atomic="false"
-                        aria-live="polite"
-                        id={questionChoicesContainerId}
-                      >
-                        <legend class:text-destructive={questionChoicesErrors.length > 0}
-                          >Choices</legend
-                        >
+                    {#if questionChoicesErrors.length > 0}
+                      <ul class="text-sm font-medium text-red-500" role="alert">
+                        {#each questionChoicesErrors as error}
+                          <li>{error}</li>
+                        {/each}
+                      </ul>
+                    {/if}
 
-                        {#if questionChoicesErrors.length > 0}
-                          <ul class="text-sm font-medium text-destructive" role="alert">
-                            {#each questionChoicesErrors as error}
-                              <li>{error}</li>
-                            {/each}
-                          </ul>
-                        {/if}
+                    <fieldset
+                      aria-atomic="false"
+                      aria-live="polite"
+                      id={questionChoicesContainerId}
+                    >
+                      <legend class:text-red-500={questionChoicesErrors.length > 0}>Choices</legend>
 
+                      {#if question.choices.length}
                         <ul class="grid gap-y-8 px-4 py-6 sm:p-8">
                           <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
                           {#each question.choices as _, choiceIndex}
@@ -343,8 +341,8 @@
                             </li>
                           {/each}
                         </ul>
-                      </fieldset>
-                    {/if}
+                      {/if}
+                    </fieldset>
 
                     <div class="text-center">
                       <Button
