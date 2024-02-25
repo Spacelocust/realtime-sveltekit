@@ -5,7 +5,9 @@
 
   import Button from '$components/ui/button/button.svelte';
   import Input from '$components/ui/input/input.svelte';
+  import { Checkbox } from '$lib/components/ui/checkbox';
   import * as Form from '$lib/components/ui/form';
+  import { Label } from '$lib/components/ui/label';
   import { QuizzSchema } from '$lib/schemas/quizz';
   import { defaultFormOptions } from '$lib/utils/form';
 
@@ -46,108 +48,131 @@
   };
 </script>
 
-<form class="space-y-10 divide-y divide-gray-900/10 dark:divide-white/10">
-  <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
-    <div class="px-4 sm:px-0">
-      <h2 class="text-base font-semibold leading-7">General</h2>
-      <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
-        General information about the quizz.
-      </p>
-    </div>
-    <div
-      class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2 dark:bg-gray-900 dark:ring-white/10"
-    >
-      <div class="px-4 py-6 sm:p-8">
-        <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-          <div class="col-span-full">
-            <Form.Field {form} name="name">
-              <Form.Control let:attrs>
-                <Form.Label>Name</Form.Label>
-                <Input {...attrs} autocomplete="name" />
-              </Form.Control>
-              <Form.Description />
-              <Form.FieldErrors />
-            </Form.Field>
-          </div>
-          <div class="col-span-full">
-            <Form.Field {form} name="difficulty">
-              <Form.Control let:attrs>
-                <Form.Label>Difficulty</Form.Label>
-                <Input {...attrs} autocomplete="difficulty" />
-              </Form.Control>
-              <Form.Description />
-              <Form.FieldErrors />
-            </Form.Field>
-          </div>
-        </div>
-        <div
-          class="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8"
-        >
-          <Button type="submit">Save</Button>
-        </div>
+<form>
+  <div class="space-y-10 divide-y divide-gray-900/10 dark:divide-white/10">
+    <section class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
+      <div class="px-4 sm:px-0">
+        <h2 class="text-base font-semibold leading-7">General</h2>
+        <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
+          General information about the quizz.
+        </p>
       </div>
-    </div>
-  </div>
-  <div class="grid grid-cols-1 gap-x-8 gap-y-8 pt-10 md:grid-cols-3">
-    <div class="px-4 sm:px-0">
-      <h2 class="text-base font-semibold leading-7">Questions</h2>
-      <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
-        All the questions in the quizz.
-      </p>
-    </div>
-
-    <div
-      class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2 dark:bg-gray-900 dark:ring-white/10"
-    >
-      <div class="px-4 py-6 sm:p-8">
-        {#each questions as question}
+      <div
+        class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2 dark:bg-gray-900 dark:ring-white/10"
+      >
+        <div class="px-4 py-6 sm:p-8">
           <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <div class="col-span-full">
-              <Form.Field {form} name="label">
+              <Form.Field {form} name="name">
                 <Form.Control let:attrs>
-                  <Form.Label>Label</Form.Label>
+                  <Form.Label>Name</Form.Label>
                   <Input {...attrs} autocomplete="name" />
                 </Form.Control>
                 <Form.Description />
                 <Form.FieldErrors />
               </Form.Field>
             </div>
+            <div class="col-span-full">
+              <Form.Field {form} name="difficulty">
+                <Form.Control let:attrs>
+                  <Form.Label>Difficulty</Form.Label>
+                  <Input {...attrs} autocomplete="difficulty" placeholder="Easy" />
+                </Form.Control>
+                <Form.Description />
+                <Form.FieldErrors />
+              </Form.Field>
+            </div>
           </div>
-          <div class="px-4 py-6 sm:p-8">
-            {#each question.answers as answer}
+        </div>
+      </div>
+    </section>
+    <section class="grid grid-cols-1 gap-x-8 gap-y-8 pt-10 md:grid-cols-3">
+      <div class="px-4 sm:px-0">
+        <h2 class="text-base font-semibold leading-7">Questions</h2>
+        <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
+          All the questions in the quizz.
+        </p>
+      </div>
+      <div
+        class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2 dark:bg-gray-900 dark:ring-white/10"
+      >
+        <div class="grid gap-y-8 px-4 py-6 sm:p-8">
+          {#each questions as question, questionIndex}
+            <div class="px-4 py-6 sm:p-8 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl dark:ring-white/10">
               <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                 <div class="col-span-full">
                   <Form.Field {form} name="label">
                     <Form.Control let:attrs>
-                      <Form.Label>Label</Form.Label>
+                      <Form.Label>Question {questionIndex + 1}</Form.Label>
                       <Input {...attrs} autocomplete="name" />
                     </Form.Control>
                     <Form.Description />
                     <Form.FieldErrors />
                   </Form.Field>
+
+                  <div class="items-top flex space-x-2">
+                    <Checkbox id={`is-multiple-${questionIndex}`} />
+                    <div class="grid gap-1.5 leading-none">
+                      <Label
+                        for={`is-multiple-${questionIndex}`}
+                        class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Is multiple
+                      </Label>
+                    </div>
+                  </div>
                 </div>
               </div>
-            {/each}
-          </div>
+
+              {#if question.answers.length}
+                <div class="grid gap-y-8 px-4 py-6 sm:p-8">
+                  {#each question.answers as answer, answerIndex}
+                    <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                      <div class="col-span-full">
+                        <Form.Field {form} name="label">
+                          <Form.Control let:attrs>
+                            <Form.Label>Answer {answerIndex + 1}</Form.Label>
+                            <Input {...attrs} autocomplete="name" />
+                          </Form.Control>
+                          <Form.Description />
+                          <Form.FieldErrors />
+                        </Form.Field>
+
+                        <div class="items-top flex space-x-2">
+                          <Checkbox id={`is-correct-${answerIndex}`} />
+                          <div class="grid gap-1.5 leading-none">
+                            <Label
+                              for={`is-correct-${answerIndex}`}
+                              class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                              Is correct
+                            </Label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  {/each}
+                </div>
+              {/if}
+
+              <div class="text-center">
+                <Button on:click={() => addAnswer(question)} size="">
+                  <Plus />
+                </Button>
+              </div>
+            </div>
+          {/each}
+
           <div class="text-center">
-            <Button on:click={() => addAnswer(question)} size="sm">
-              <span>Add answer</span>
+            <Button on:click={addQuestion} size="icon">
               <Plus />
             </Button>
           </div>
-        {/each}
+        </div>
       </div>
-      <div class="text-center">
-        <Button on:click={addQuestion} size="lg">
-          <span>Add question</span>
-          <Plus />
-        </Button>
-      </div>
-      <div
-        class="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8"
-      >
-        <Button type="submit">Save</Button>
-      </div>
-    </div>
+    </section>
+  </div>
+  <div class="mt-6 flex items-center justify-end gap-x-6">
+    <Button type="submit">Save</Button>
   </div>
 </form>
