@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Users } from 'lucide-svelte';
+  import Users from 'lucide-svelte/icons/users';
   import { toast } from 'svelte-sonner';
   import { superForm } from 'sveltekit-superforms';
   import { valibotClient } from 'sveltekit-superforms/adapters';
@@ -304,7 +304,10 @@
             </HoverCard.Trigger>
             <HoverCard.Content>
               <div class="space-y-3">
-                <p><span class="font-semibold">Description : </span>{lobby.description}</p>
+                {#if lobby.description}
+                  <p><span class="font-semibold">Description : </span>{lobby.description}</p>
+                {/if}
+
                 <p><span class="font-semibold">Quizz : </span>{lobby.quiz.title}</p>
               </div>
             </HoverCard.Content>

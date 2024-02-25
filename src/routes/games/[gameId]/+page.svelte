@@ -299,9 +299,9 @@
         </p>
         <Button href="/games">Return to games</Button>
 
-        <section>
+        <section class="space-y-3">
           <h3>Your results</h3>
-          <ul>
+          <ul class="gap-3 grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {#each questionResults as { question, results } (question.id)}
               <li>
                 <QuestionResult {question} {results} />

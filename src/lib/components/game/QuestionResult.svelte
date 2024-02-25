@@ -16,7 +16,7 @@
   );
 </script>
 
-<Card.Root class="w-[350px]">
+<Card.Root>
   <Card.Header>
     <Card.Title>{question.question}</Card.Title>
     {#if question.hint}
@@ -26,34 +26,38 @@
     {/if}
   </Card.Header>
   <Card.Content>
-    <div class="flex flex-col gap-2 justify-center items-center">
+    <div class="flex flex-col gap-1.5 justify-center items-center">
       {#if hasGoodAnswers}
-        <Check class="w-[50px] h-[50px] text-green-500" />
+        <Check class="size-12 text-green-500" />
         <p class="text-green-500">Good job!</p>
       {:else}
-        <X class="w-[50px] h-[50px] text-destructive" />
-        <p class="text-destructive">You got it wrong</p>
+        <X class="size-12 text-red-500" />
+        <p class="text-red-500">You got it wrong</p>
       {/if}
     </div>
 
-    <ul>
+    <ul class="mt-3">
       {#each question.choices as choice (choice.id)}
         {@const value = results.countPerAnswer[choice.id] || 0}
         {@const hasAnswered = results.playerAnswers.includes(choice.id)}
         {@const isCorrect = results.correctAnswers.includes(choice.id)}
 
         <li>
-          <Progress {value} max={playerCount} />
-          <span>{choice.label}</span>
-          {#if isCorrect}
-            <Check class="w-[20px] h-[20px] text-green-500" />
-            <span class="sr-only"
-              >This answer is correct{hasAnswered ? ' and you answered it' : ''}</span
-            >
-          {:else if hasAnswered}
-            <X class="w-[20px] h-[20px] text-destructive" />
-            <span class="sr-only">This answer is wrong but you answered it</span>
-          {/if}
+          <span class="min-w-max">{choice.label}</span>
+
+          <div class="flex gap-1.5 items-center">
+            {#if isCorrect}
+              <Check class="size-6 text-green-500" />
+              <span class="sr-only"
+                >This answer is correct{hasAnswered ? ' and you answered it' : ''}</span
+              >
+            {:else if hasAnswered}
+              <X class="size-6 text-red-500" />
+              <span class="sr-only">This answer is wrong but you answered it</span>
+            {/if}
+
+            <Progress {value} max={playerCount} />
+          </div>
         </li>
       {/each}
     </ul>

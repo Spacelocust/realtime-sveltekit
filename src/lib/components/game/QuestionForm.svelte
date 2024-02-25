@@ -11,7 +11,7 @@
   export let disabled = false;
 </script>
 
-<Card.Root class="w-[350px]">
+<Card.Root>
   <Card.Header>
     <Card.Title>{question.question}</Card.Title>
     {#if question.hint}
