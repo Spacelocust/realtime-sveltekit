@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Loader2 } from 'lucide-svelte';
+  import Loader2 from 'lucide-svelte/icons/loader-2';
   import { io } from 'socket.io-client';
   import { onDestroy, onMount } from 'svelte';
   import { toast } from 'svelte-sonner';

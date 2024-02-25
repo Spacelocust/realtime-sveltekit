@@ -17,7 +17,7 @@ start-nocache: ## Build and start the project without cache
 	build-no-chache up-recreate
 
 up-recreate: ## Start the project and recreate the containers
-	$(COMPOSE) up -d --remove-orphans --force-recreate
+	$(COMPOSE) up -d --remove-orphans --force-recreate --build
 
 up: ## Start the project
 	$(COMPOSE) up -d --remove-orphans

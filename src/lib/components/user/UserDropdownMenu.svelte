@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { User } from 'lucide-svelte';
+  import User from 'lucide-svelte/icons/user';
 
   import Button from '$components/ui/button/button.svelte';
   import * as DropdownMenu from '$components/ui/dropdown-menu';

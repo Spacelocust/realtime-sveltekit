@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { Plus, Trash2 } from 'lucide-svelte';
+  import Plus from 'lucide-svelte/icons/plus';
+  import Trash2 from 'lucide-svelte/icons/trash-2';
   import { toast } from 'svelte-sonner';
   import { type SuperValidated, superForm } from 'sveltekit-superforms';
   import { valibotClient } from 'sveltekit-superforms/adapters';
@@ -281,7 +282,7 @@
                                   aria-controls={questionChoicesContainerId}
                                   aria-label={`Remove this choice (${$formData.questions[questionIndex].choices[choiceIndex].label})`}
                                   class="absolute right-0 size-7 top-0"
-                                  size=""
+                                  size="icon"
                                   type="button"
                                   variant="destructive"
                                   on:click={() => removeChoice(questionIndex, choiceIndex)}
@@ -348,7 +349,7 @@
                         aria-controls={questionChoicesContainerId}
                         aria-label="Add choice"
                         disabled={$formData.questions[questionIndex].choices.length >= 5}
-                        size=""
+                        size="icon"
                         type="button"
                         on:click={() => addChoice(questionIndex)}
                       >
