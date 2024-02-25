@@ -4,96 +4,135 @@ import { Server } from 'socket.io';
 
 import { isAuth } from './middleware';
 import {
-  GameStatus,
+  LobbiesState,
   type ClientToServerEvents,
   type InterServerEvents,
-  type Lobbies,
   type ServerToClientEvents,
   type SocketData,
 } from './types';
+
+import { GameStatus } from '../src/shared/enums/lobby';
+import { MessageType } from '../src/shared/enums/socket';
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>();
 
 io.use(isAuth);
 
-const lobbies: Lobbies = {};
+const lobbies: LobbiesState = {};
 
 io.on('connection', (socket) => {
-  socket.on('join', (lobbyKey, password) => {
-    const lobby = lobbies[lobbyKey];
+  socket.on('join', (lobbyId, password) => {
+    const lobby = lobbies[lobbyId];
     if (!lobby) {
       // TODO: create lobby
       // remove return when lobby is implemented
       return;
     }
 
-    if (lobby.game.status !== 'waiting') {
-      socket.emit('message', 'You can only join a lobby that is waiting for players');
+    if (lobby.status !== GameStatus.Waiting) {
+      socket.emit('message', {
+        type: MessageType.Error,
+        content: 'Game has already started or finished',
+      });
       return;
     }
 
     if (lobby.players.length >= lobby.maxPlayers) {
-      socket.emit('message', 'Lobby is full');
+      socket.emit('message', {
+        type: MessageType.Error,
+        content: 'Lobby is full',
+      });
       return;
     }
 
-    if (socket.data.user && lobby.players.includes(socket.data.user.id)) {
-      socket.emit('message', 'You are already in the lobby');
+    if (socket.data.user && lobby.players.find((player) => player.id === socket.data.user?.id)) {
+      socket.emit('message', {
+        type: MessageType.Error,
+        content: 'You are already in the lobby',
+      });
       return;
     }
 
     if (lobby.password && lobby.password !== password) {
-      socket.emit('message', 'Invalid password');
+      socket.emit('message', {
+        type: MessageType.Error,
+        content: 'Invalid password',
+      });
       return;
     }
 
-    socket.join(lobbyKey);
-    socket.data.lobbyKey = lobbyKey;
+    socket.join(lobbyId);
+    socket.data.lobbyId = lobbyId;
 
-    io.to(lobbyKey).emit('message', `${socket.data.user?.username} joined the game!`);
+    io.to(lobbyId).emit('message', {
+      type: MessageType.Message,
+      content: `${socket.data.user?.username} joined the game!`,
+    });
   });
 
   socket.on('start', () => {
-    const { lobbyKey } = socket.data;
+    const { lobbyId } = socket.data;
 
-    if (!lobbyKey) {
-      socket.emit('message', 'You need to join a lobby to start the game');
+    if (!lobbyId) {
+      socket.emit('message', {
+        type: MessageType.Error,
+        content: 'You need to join a lobby to start the game',
+      });
       return;
     }
 
-    const lobby = lobbies[lobbyKey];
+    const lobby = lobbies[lobbyId];
     if (!lobby) {
-      socket.emit('message', 'Lobby not found');
+      socket.emit('message', {
+        type: MessageType.Error,
+        content: 'Lobby not found',
+      });
       return;
     }
 
-    if (socket.data.user && !lobby.players.includes(socket.data.user.id)) {
-      socket.emit('message', 'You are not in the lobby');
+    if (socket.data.user && !lobby.players.find((player) => player.id === socket.data.user?.id)) {
+      socket.emit('message', {
+        type: MessageType.Error,
+        content: 'You are not in the lobby',
+      });
       return;
     }
 
-    if (lobby.game.status !== GameStatus.Waiting) {
-      socket.emit('message', 'Game has already started or finished');
+    if (lobby.status === GameStatus.Finished) {
+      socket.emit('message', {
+        type: MessageType.Error,
+        content: 'Game has already finished',
+      });
       return;
     }
 
     if (lobby.owner !== socket.data.user?.id) {
-      socket.emit('message', 'Only the owner can start the game');
+      socket.emit('message', {
+        type: MessageType.Error,
+        content: 'Only the owner can start the game',
+      });
       return;
     }
 
-    lobbies[lobbyKey].game.status = GameStatus.InProgress;
+    lobbies[lobbyId].status = GameStatus.InProgress;
 
-    io.to(lobbyKey).emit('message', 'Game started!');
+    io.to(lobbyId).emit('message', {
+      type: MessageType.Message,
+      content: 'Game started!',
+    });
   });
 
-  socket.on('answer', (answer) => {});
+  socket.on('addAnswer', (answer) => {});
+  socket.on('removeAnswer', (answer) => {});
 
   socket.on('disconnect', () => {
-    const { lobbyKey } = socket.data;
+    const { lobbyId } = socket.data;
 
-    if (lobbyKey) {
-      io.to(lobbyKey).emit('message', `${socket.data.user?.username} left the game!`);
+    if (lobbyId) {
+      io.to(lobbyId).emit('message', {
+        type: MessageType.Message,
+        content: `${socket.data.user?.username} left the game!`,
+      });
     }
   });
 });

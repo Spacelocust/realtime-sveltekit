@@ -1,6 +1,8 @@
-import type { GameStatus } from '../drizzle/enums/lobby';
+import { GameStatus } from '../src/shared/enums/lobby';
+
 import type { Choice, Question } from '../drizzle/table/questions';
 import type { Quiz } from '../drizzle/table/quizzes';
+import type { MessageType } from '../src/shared/enums/socket';
 import type { Session, User } from 'lucia';
 import type { Socket as SocketIO } from 'socket.io';
 
@@ -29,7 +31,7 @@ export type QuestionResult = {
 };
 
 // The result of a game after the last question
-export type Scoreboard = Record<string, number>; // [playerId]: score
+export type Scoreboard = Player[]; // [playerId]: score
 
 // The game state
 export type Game = {
@@ -54,11 +56,11 @@ export type LobbyState = {
 export type LobbiesState = Record<string, LobbyState>; // [id]: Lobby
 
 export interface ServerToClientEvents {
-  message: (message: { type: string; content: string }) => void;
+  message: (message: { type: MessageType; content: string }) => void;
   question: (question: Question) => void; // new question
-  questionTimer: (timeLeft: number) => void; // timer for the question
-  questionInterludeTimer: (timeLeft: number) => void; // timer for the interlude between questions
   questionResult: (questionResult: QuestionResult) => void; // result of the question
+  answerTimer: (timeLeft: number) => void; // timer for the question
+  interludeTimer: (timeLeft: number) => void; // timer for the interlude between questions
   scoreboard: (scoreboard: Scoreboard) => void; // current scoreboard
   lobbyStatus: (status: GameStatus) => void; // lobby status
 }
@@ -75,7 +77,7 @@ export interface InterServerEvents {}
 export interface SocketData {
   user: User | null;
   session: Session | null;
-  lobbyCode: string;
+  lobbyId: string;
   currentAnswer: string | string[] | null; // current answer for the current question
 }
 
