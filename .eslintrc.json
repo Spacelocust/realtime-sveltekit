@@ -123,7 +123,7 @@
         "pathGroups": [
           {
             "group": "internal",
-            "pattern": "$(lib|components|utils|server|app|drizzle|types|socket)/*"
+            "pattern": "$(lib|components|utils|server|app|drizzle|types|socket|shared)/*"
           },
           {
             "group": "type",

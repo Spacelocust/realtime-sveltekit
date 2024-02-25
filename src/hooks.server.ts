@@ -1,6 +1,6 @@
-import { Role } from '$lib/enums/user';
 import { auth } from '$server/auth';
 import { db } from '$server/drizzle';
+import { Role } from '$shared/enums/user';
 
 import type { Handle } from '@sveltejs/kit';
 

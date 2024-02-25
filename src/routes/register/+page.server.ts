@@ -7,10 +7,10 @@ import { valibot } from 'sveltekit-superforms/adapters';
 
 import { randomUUID } from 'node:crypto';
 
-import { Role } from '$lib/enums/user';
 import { RegisterSchema } from '$lib/schemas/register';
 import { auth } from '$server/auth';
 import { users } from '$server/drizzle';
+import { Role } from '$shared/enums/user';
 
 import type { Actions, PageServerLoad } from './$types';
 

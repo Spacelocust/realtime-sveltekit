@@ -15,6 +15,7 @@ const config = {
       $types: "./src/lib/types",
       $drizzle: "./drizzle",
       $socket: "./socket",
+      $shared: "./src/shared",
     },
   },
 };

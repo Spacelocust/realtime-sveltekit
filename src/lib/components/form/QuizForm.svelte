@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { toast } from 'svelte-sonner';
   import { type SuperValidated, superForm } from 'sveltekit-superforms';
   import { valibotClient } from 'sveltekit-superforms/adapters';
 
@@ -21,10 +22,13 @@
     invalidateAll: 'force',
     dataType: 'json',
   });
-  const { form: formData, errors, delayed, enhance } = form;
+  const { form: formData, errors, timeout, delayed, enhance } = form;
 
   $: selectedDifficulty = difficultyOptions.find((option) => option.value === $formData.difficulty);
   $: questionErrors = $errors.questions?._errors ?? [];
+  $: if ($timeout) {
+    toast.error('Sorry, this is taking longer than expected...');
+  }
 
   /**
    * Add a new question to the quiz form.
@@ -229,6 +233,7 @@
                       <div class="space-y-0.5">
                         <Form.Label>Is correct?</Form.Label>
                         <Form.Description />
+                        <Form.FieldErrors />
                       </div>
                       <Switch
                         includeInput

@@ -4,7 +4,7 @@ import { mysqlEnum, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 import { lobbies } from './lobbies';
 import { sessions } from './sessions';
 
-import { Role } from '../enums/user';
+import { Role } from '../../src/shared/enums/user';
 
 export const users = mysqlTable('users', {
   id: varchar('id', {
