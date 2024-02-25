@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm';
 import { datetime, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 
 import { users } from './users';
@@ -13,6 +14,13 @@ export const sessions = mysqlTable('sessions', {
     .references(() => users.id),
   expiresAt: datetime('expires_at').notNull(),
 });
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
 
 export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
