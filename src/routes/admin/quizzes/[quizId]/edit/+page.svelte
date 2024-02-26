@@ -15,7 +15,7 @@
 
 <AlertDialog.Root>
   <AlertDialog.Trigger>
-    <span class="font-semibold text-red-500">Delete quizz</span>
+    <span class="font-semibold text-red-500">Delete quiz</span>
   </AlertDialog.Trigger>
   <AlertDialog.Content>
     <AlertDialog.Header>

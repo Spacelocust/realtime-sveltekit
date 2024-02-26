@@ -11,9 +11,11 @@
   export let results: QuestionResult;
   export let playerCount: number;
 
-  $: hasGoodAnswers = results.correctAnswers.every((answer) =>
-    results.playerAnswers.includes(answer),
-  );
+  $: hasGoodAnswers = question.choices.every(({ id }) => {
+    const isGoodAnswer = results.correctAnswers.includes(id);
+
+    return isGoodAnswer === results.playerAnswers.includes(id);
+  });
 </script>
 
 <Card.Root>
@@ -56,7 +58,7 @@
               <span class="sr-only">This answer is wrong but you answered it</span>
             {/if}
 
-            <Progress {value} max={playerCount} />
+            <Progress aria-label="How many people chose this answer" {value} max={playerCount} />
           </div>
         </li>
       {/each}

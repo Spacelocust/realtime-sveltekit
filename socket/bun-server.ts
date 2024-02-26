@@ -160,28 +160,28 @@ io.on('connection', (socket) => {
         lobbies[lobbyId] = await createLobby(lobbyId);
         lobby = lobbies[lobbyId];
       } catch (error) {
-        emitError('Lobby not found');
+        emitError('Lobby not found.');
         return;
       }
     }
 
     if (lobby.status === GameStatus.Finished) {
-      emitError('Game has already finished');
+      emitError('Game has already ended.');
       return;
     }
 
     if (lobby.players.length >= lobby.maxPlayers) {
-      emitError('Lobby is full');
+      emitError('Lobby is full.');
       return;
     }
 
     if (socket.data.user && lobby.players.find((player) => player.id === socket.data.user?.id)) {
-      emitError('You are already in the lobby');
+      emitError('You are already in the lobby.');
       return;
     }
 
     if (lobby.password && lobby.password !== password) {
-      emitError('Invalid password');
+      emitError('Invalid password.');
       return;
     }
 
@@ -212,28 +212,28 @@ io.on('connection', (socket) => {
     const { lobbyId } = socket.data;
 
     if (!lobbyId) {
-      emitError('You need to join a lobby to start the game');
+      emitError('You need to join a lobby to start the game.');
       return;
     }
 
     const lobby = lobbies[lobbyId];
     if (!lobby) {
-      emitError('Lobby not found');
+      emitError('Lobby not found.');
       return;
     }
 
     if (socket.data.user && !lobby.players.find((player) => player.id === socket.data.user?.id)) {
-      emitError('You are not in the lobby');
+      emitError('You are not in the lobby.');
       return;
     }
 
     if (lobby.status === GameStatus.Finished) {
-      emitError('Game has already finished');
+      emitError('Game has already ended.');
       return;
     }
 
     if (lobby.owner !== socket.data.user?.id) {
-      emitError('Only the owner can start the game');
+      emitError('Only the host can start the game.');
       return;
     }
 
@@ -257,33 +257,33 @@ io.on('connection', (socket) => {
     const { lobbyId } = socket.data;
 
     if (!socket.data.user) {
-      emitError('You need to be logged in to answer');
+      emitError('You need to be logged in to answer.');
       return;
     }
 
     if (!lobbyId) {
-      emitError('You need to join a lobby to answer');
+      emitError('You need to join a lobby to answer.');
       return;
     }
 
     const lobby = lobbies[lobbyId];
     if (!lobby) {
-      emitError('Lobby not found');
+      emitError('Lobby not found.');
       return;
     }
 
     if (lobby.status !== GameStatus.InProgress) {
-      emitError('Game is not in progress');
+      emitError('Game is not in progress.');
       return;
     }
 
     if (!lobby.players.find((player) => player.id === socket.data.user?.id)) {
-      emitError('You are not in the lobby');
+      emitError('You are not in the lobby.');
       return;
     }
 
     if (lobby.game.currentQuestion.timeLeft <= 0) {
-      emitError('Time is up');
+      emitError('Time is up!');
       return;
     }
 
@@ -291,7 +291,7 @@ io.on('connection', (socket) => {
       lobby.playerCurrentAnswers[socket.data.user?.id] &&
       lobby.playerCurrentAnswers[socket.data.user?.id].length > 0
     ) {
-      emitError('You already answered this question');
+      emitError('You already answered this question.');
       return;
     }
 
@@ -324,7 +324,7 @@ io.on('connection', (socket) => {
       lobbies[socket.data.lobbyId].game.currentQuestion.timeLeft = 4;
     }
 
-    emitMessage('Answer received');
+    emitMessage('Answer received.');
     socket.emit('answered', true);
   });
 
