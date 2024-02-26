@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Legend } from 'formsnap';
   import Plus from 'lucide-svelte/icons/plus';
   import Trash2 from 'lucide-svelte/icons/trash-2';
   import { toast } from 'svelte-sonner';
@@ -178,7 +179,7 @@
         </p>
 
         {#if questionErrors.length > 0}
-          <ul class="text-sm font-medium text-red-500" role="alert">
+          <ul class="text-sm font-medium text-red-500" aria-live="assertive">
             {#each questionErrors as error}
               <li>{error}</li>
             {/each}
@@ -188,179 +189,183 @@
       <div
         class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2 dark:bg-gray-900 dark:ring-white/10"
       >
-        <fieldset
+        <Form.Fieldset
+          {form}
+          name="questions"
           aria-atomic="false"
           aria-live="polite"
           class="grid gap-y-8 px-4 py-6 sm:p-8"
           id="quiz-form_questions"
         >
-          {#if $formData.questions.length}
-            <ul class="contents">
-              {#each $formData.questions as question, questionIndex}
-                {@const questionChoicesContainerId = `quiz-form_question-choices-${questionIndex}`}
-                {@const questionChoicesErrors =
-                  $errors.questions?.[questionIndex]?.choices?._errors ?? []}
+          <Legend class="sr-only">Questions</Legend>
 
-                <li>
-                  {#if $formData.questions[questionIndex].id}
-                    <input
-                      hidden
-                      bind:value={$formData.questions[questionIndex].id}
-                      name="questions[{questionIndex}].id"
-                    />
-                  {/if}
+          <ul class="contents">
+            {#each $formData.questions as question, questionIndex}
+              {@const questionChoicesContainerId = `quiz-form_question-choices-${questionIndex}`}
+              {@const questionChoicesErrors =
+                $errors.questions?.[questionIndex]?.choices?._errors ?? []}
 
-                  <div
-                    class="grid gap-y-8 px-4 py-6 sm:p-8 shadow-sm ring-1 ring-gray-900/5 relative sm:rounded-xl dark:ring-white/10"
+              <li>
+                {#if $formData.questions[questionIndex].id}
+                  <input
+                    hidden
+                    bind:value={$formData.questions[questionIndex].id}
+                    name="questions[{questionIndex}].id"
+                  />
+                {/if}
+
+                <div
+                  class="grid gap-y-8 px-4 py-6 sm:p-8 shadow-sm ring-1 ring-gray-900/5 relative sm:rounded-xl dark:ring-white/10"
+                >
+                  <Button
+                    aria-controls="quiz-form_questions"
+                    aria-label={`Remove this question (${$formData.questions[questionIndex].question})`}
+                    class="absolute right-2 top-2"
+                    size="icon"
+                    type="button"
+                    variant="destructive"
+                    on:click={() => removeQuestion(questionIndex)}
                   >
-                    <Button
-                      aria-controls="quiz-form_questions"
-                      aria-label={`Remove this question (${$formData.questions[questionIndex].question})`}
-                      class="absolute right-2 top-2"
-                      size="icon"
-                      type="button"
-                      variant="destructive"
-                      on:click={() => removeQuestion(questionIndex)}
-                    >
-                      <Trash2 />
-                    </Button>
+                    <Trash2 />
+                  </Button>
 
-                    <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                      <div class="col-span-full">
-                        <Form.Field {form} name="questions[{questionIndex}].question">
-                          <Form.Control let:attrs>
-                            <Form.Label>Question</Form.Label>
-                            <Input
-                              {...attrs}
-                              required
-                              bind:value={$formData.questions[questionIndex].question}
-                            />
-                          </Form.Control>
-                          <Form.Description />
-                          <Form.FieldErrors />
-                        </Form.Field>
+                  <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                    <div class="col-span-full">
+                      <Form.ElementField {form} name="questions[{questionIndex}].question">
+                        <Form.Control let:attrs>
+                          <Form.Label>Question</Form.Label>
+                          <Input
+                            {...attrs}
+                            required
+                            bind:value={$formData.questions[questionIndex].question}
+                          />
+                        </Form.Control>
+                        <Form.Description />
+                        <Form.FieldErrors />
+                      </Form.ElementField>
 
-                        <Form.Field {form} name="questions[{questionIndex}].hint">
-                          <Form.Control let:attrs>
-                            <Form.Label>Hint</Form.Label>
-                            <Textarea
-                              {...attrs}
-                              rows={2}
-                              bind:value={$formData.questions[questionIndex].hint}
-                            />
-                          </Form.Control>
-                          <Form.Description>
-                            You can add a hint to help players answer the question. It can also be
-                            used to give more context to the question.
-                          </Form.Description>
-                          <Form.FieldErrors />
-                        </Form.Field>
-                      </div>
-                    </div>
-                    <fieldset
-                      aria-atomic="false"
-                      aria-live="polite"
-                      id={questionChoicesContainerId}
-                    >
-                      <legend class:text-red-500={questionChoicesErrors.length > 0}>Choices</legend>
-
-                      {#if questionChoicesErrors.length > 0}
-                        <ul class="text-sm font-medium text-red-500" role="alert">
-                          {#each questionChoicesErrors as error}
-                            <li>{error}</li>
-                          {/each}
-                        </ul>
-                      {/if}
-
-                      {#if question.choices.length}
-                        <ul class="grid gap-y-8 px-4 py-6 sm:p-8">
-                          <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-                          {#each question.choices as _, choiceIndex}
-                            <li class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                              <div class="col-span-full relative">
-                                <Button
-                                  aria-controls={questionChoicesContainerId}
-                                  aria-label={`Remove this choice (${$formData.questions[questionIndex].choices[choiceIndex].label})`}
-                                  class="absolute right-0 size-7 top-0"
-                                  size="icon"
-                                  type="button"
-                                  variant="destructive"
-                                  on:click={() => removeChoice(questionIndex, choiceIndex)}
-                                >
-                                  <Trash2 class="size-5" />
-                                </Button>
-
-                                <Form.Field
-                                  {form}
-                                  name="questions[{questionIndex}].choices[{choiceIndex}].label"
-                                >
-                                  <Form.Control let:attrs>
-                                    <Form.Label>Choice {choiceIndex + 1}</Form.Label>
-                                    <Input
-                                      {...attrs}
-                                      required
-                                      bind:value={$formData.questions[questionIndex].choices[
-                                        choiceIndex
-                                      ].label}
-                                    />
-                                  </Form.Control>
-                                  <Form.Description />
-                                  <Form.FieldErrors />
-                                </Form.Field>
-
-                                <Form.Field
-                                  {form}
-                                  name="questions[{questionIndex}].choices[{choiceIndex}].isCorrect"
-                                  class="flex flex-row items-center justify-between rounded-lg border p-4"
-                                >
-                                  <Form.Control let:attrs>
-                                    <div class="space-y-0.5">
-                                      <Form.Label>Is correct?</Form.Label>
-                                      <Form.Description />
-                                    </div>
-                                    <Switch
-                                      includeInput
-                                      {...attrs}
-                                      bind:checked={$formData.questions[questionIndex].choices[
-                                        choiceIndex
-                                      ].isCorrect}
-                                    />
-                                  </Form.Control>
-                                </Form.Field>
-
-                                {#if $formData.questions[questionIndex].choices[choiceIndex].id}
-                                  <input
-                                    hidden
-                                    bind:value={$formData.questions[questionIndex].choices[
-                                      choiceIndex
-                                    ].id}
-                                    name="questions[{questionIndex}].choices[{choiceIndex}].id"
-                                  />
-                                {/if}
-                              </div>
-                            </li>
-                          {/each}
-                        </ul>
-                      {/if}
-                    </fieldset>
-
-                    <div class="text-center">
-                      <Button
-                        aria-controls={questionChoicesContainerId}
-                        aria-label="Add choice"
-                        disabled={$formData.questions[questionIndex].choices.length >= 5}
-                        size="icon"
-                        type="button"
-                        on:click={() => addChoice(questionIndex)}
-                      >
-                        <Plus />
-                      </Button>
+                      <Form.ElementField {form} name="questions[{questionIndex}].hint">
+                        <Form.Control let:attrs>
+                          <Form.Label>Hint</Form.Label>
+                          <Textarea
+                            {...attrs}
+                            rows={2}
+                            bind:value={$formData.questions[questionIndex].hint}
+                          />
+                        </Form.Control>
+                        <Form.Description>
+                          You can add a hint to help players answer the question. It can also be
+                          used to give more context to the question.
+                        </Form.Description>
+                        <Form.FieldErrors />
+                      </Form.ElementField>
                     </div>
                   </div>
-                </li>
-              {/each}
-            </ul>
-          {/if}
+                  <Form.Fieldset
+                    {form}
+                    name="questions[{questionIndex}].choices"
+                    aria-atomic="false"
+                    aria-live="polite"
+                    id={questionChoicesContainerId}
+                  >
+                    <Legend>Choices</Legend>
+
+                    {#if questionChoicesErrors.length > 0}
+                      <ul class="text-sm font-medium text-red-500" aria-live="assertive">
+                        {#each questionChoicesErrors as error}
+                          <li>{error}</li>
+                        {/each}
+                      </ul>
+                    {/if}
+
+                    {#if question.choices.length}
+                      <ul class="grid gap-y-8 px-4 py-6 sm:p-8">
+                        <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
+                        {#each question.choices as _, choiceIndex}
+                          <li class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                            <div class="col-span-full relative">
+                              <Button
+                                aria-controls={questionChoicesContainerId}
+                                aria-label={`Remove this choice (${$formData.questions[questionIndex].choices[choiceIndex].label})`}
+                                class="absolute right-0 size-7 top-0"
+                                size="icon"
+                                type="button"
+                                variant="destructive"
+                                on:click={() => removeChoice(questionIndex, choiceIndex)}
+                              >
+                                <Trash2 class="size-5" />
+                              </Button>
+
+                              <Form.ElementField
+                                {form}
+                                name="questions[{questionIndex}].choices[{choiceIndex}].label"
+                              >
+                                <Form.Control let:attrs>
+                                  <Form.Label>Choice {choiceIndex + 1}</Form.Label>
+                                  <Input
+                                    {...attrs}
+                                    required
+                                    bind:value={$formData.questions[questionIndex].choices[
+                                      choiceIndex
+                                    ].label}
+                                  />
+                                </Form.Control>
+                                <Form.Description />
+                                <Form.FieldErrors />
+                              </Form.ElementField>
+
+                              <Form.ElementField
+                                {form}
+                                name="questions[{questionIndex}].choices[{choiceIndex}].isCorrect"
+                                class="flex flex-row items-center justify-between rounded-lg border p-4"
+                              >
+                                <Form.Control let:attrs>
+                                  <div class="space-y-0.5">
+                                    <Form.Label>Is correct?</Form.Label>
+                                    <Form.Description />
+                                  </div>
+                                  <Switch
+                                    includeInput
+                                    {...attrs}
+                                    bind:checked={$formData.questions[questionIndex].choices[
+                                      choiceIndex
+                                    ].isCorrect}
+                                  />
+                                </Form.Control>
+                              </Form.ElementField>
+
+                              {#if $formData.questions[questionIndex].choices[choiceIndex].id}
+                                <input
+                                  hidden
+                                  bind:value={$formData.questions[questionIndex].choices[
+                                    choiceIndex
+                                  ].id}
+                                  name="questions[{questionIndex}].choices[{choiceIndex}].id"
+                                />
+                              {/if}
+                            </div>
+                          </li>
+                        {/each}
+                      </ul>
+                    {/if}
+                  </Form.Fieldset>
+
+                  <div class="text-center">
+                    <Button
+                      aria-controls={questionChoicesContainerId}
+                      aria-label="Add choice"
+                      disabled={$formData.questions[questionIndex].choices.length >= 5}
+                      size="icon"
+                      type="button"
+                      on:click={() => addChoice(questionIndex)}
+                    >
+                      <Plus />
+                    </Button>
+                  </div>
+                </div>
+              </li>
+            {/each}
+          </ul>
 
           <div class="text-center">
             <Button
@@ -374,7 +379,7 @@
               <Plus />
             </Button>
           </div>
-        </fieldset>
+        </Form.Fieldset>
       </div>
     </section>
   </div>
