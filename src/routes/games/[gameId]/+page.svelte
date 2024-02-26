@@ -240,6 +240,8 @@
   </AlertDialog.Content>
 </AlertDialog.Root>
 
+<p class="mb-2 ml-1">Game code : {data.gameLobby.code}</p>
+
 <div
   id="game-container"
   aria-atomic="false"
@@ -305,9 +307,9 @@
         <section class="space-y-3">
           <h3>Your results</h3>
           <ul class="gap-3 grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {#each questionResults as { question, results } (question.id)}
+            {#each questionResults as { question, results, playerCount } (question.id)}
               <li>
-                <QuestionResult {question} {results} />
+                <QuestionResult {question} {results} {playerCount} />
               </li>
             {/each}
           </ul>
