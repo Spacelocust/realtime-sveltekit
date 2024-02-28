@@ -45,9 +45,6 @@ You can also create one using the registration form, but they will not have the 
 
 Only users with the `admin` role can create quizzes. A new "quizzes" link will appear in the user dropdown menu.
 
-> [!NOTE]  
-> There is currently a bug with [Formsnap](https://github.com/svecosystem/formsnap) where nested errors in a form are not displayed. If a toast message appears and says that the form is invalid but no error is displayed on the form, you can add a `console.error(updatedForm.errors)` [here](https://github.com/Spacelocust/realtime-sveltekit/blob/main/src/lib/utils/form.ts#L11) to see the errors in the console.
-
 ## Game lobbies
 
 Game lobbies are available for any logged in user.
